@@ -1,7 +1,9 @@
 source "https://rubygems.org"
 
-gem "jekyll"
-gem "jekyll-asset-pipeline"
+gem "nanoc"
+gem "listen"
+gem "asdf"
+gem "mime-types"
 
 gem "coffee-script"
 gem "sass"

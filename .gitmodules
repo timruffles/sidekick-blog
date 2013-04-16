@@ -1,0 +1,3 @@
+[submodule "_jshint"]
+	path = _jshint
+	url = git://github.com/jshint/site.git

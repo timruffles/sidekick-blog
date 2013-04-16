@@ -1,0 +1,60 @@
+---
+layout: Default
+title: JSLint options generator - quickly generate JSHint and JSLint options
+---
+
+<% options = HintOptions.fetch %>
+<div class=lint>
+
+  <h1>JSLint configurator</h1>
+
+  <h2>Lint configurator</h2>
+
+  <p>Configuring JSHint or JSLint takes a while - there are a heap of options! Below you can either quickly choose a profile for your environment, or set any option explicitly to create a custom profile.</p>
+
+  <div class=full>
+
+    <div class=profiles>
+      <h3>Profiles</h3>
+      <p>Profiles are pre-made sets of options for certain styles and conventions.</p>
+      <%= render "radios", options: options.profiles, name: "profile" %>
+    </div>
+
+    <div class=environment>
+      <h3>Environment</h3>
+      <p>Sets up the environement your code runs in - available libraries and built-in APIs.</p>
+
+      <%= render "radios", options: options.environments, name: "environment" %>
+    </div>
+
+    <div class=environment>
+      <h3>Libraries</h3>
+      <p>Declare the libraries you're using.</p>
+      <%= render "checkboxes", options: options.libraries, name: "libraries" %>
+    </div>
+
+    <div class=tool>
+      <h3>Linting tool</h3>
+      <%= render "radios", options: options.libraries, name: "tool" %>
+    </div>
+
+    <div class=layout>
+      <h3>Style & layout</h3>
+      <p>Options for defining the style & layout of your code - everything done for human/asethic considerations.</p>
+    </div>
+
+    <div class=language>
+      <h3>Language</h3>
+      <p>Disallows dangerous or ambigous language features or coding styles.</p>
+    </div>
+
+
+    <div class=download>
+      <h3>Download/export</h3>
+    </div>
+
+  </div>
+
+</div>
+
+

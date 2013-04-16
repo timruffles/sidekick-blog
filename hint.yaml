@@ -1,0 +1,34 @@
+options:
+  profiles:
+    - id: high
+      name: High priority
+    - id: strict
+      name: Strict
+    - id: custom
+      name: Custom
+
+  environments:
+    - id: browser
+      name: Browser
+    - id: node
+      name: Node
+
+  tools:
+    - id: jshint
+      name: JSHint
+    - id: jslint
+      name: JSLint
+
+  libraries:
+    - id: jquery
+      name: jQuery
+    - id: d3
+      name: d3
+    - id: backbone
+      name: Backbone
+    - id: ember
+      name: Ember
+    - id: zepto
+      name: Zepto
+
+

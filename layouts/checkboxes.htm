@@ -1,0 +1,5 @@
+<% @options.each do |option| %>
+  <div class=option>
+    <label for=<%= option.id %>><%= option.name %></label><input name=<%= @name %> type=checkbox value=<%= option.id %> id=<%= option.id %> />
+  </div>
+<% end %>
