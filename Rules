@@ -14,7 +14,6 @@
 #   because “*” matches zero or more characters.
 
 compile %r{/stylesheets/(?!_).*} do
-  p item.identifier
   filter :sass
 end
 route %r{/stylesheets/(?!_).*} do

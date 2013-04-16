@@ -1,5 +1,5 @@
-<% @options.each do |option| %>
+<% @options.each_with_index do |option,index| %>
   <div class=option>
-    <label for=<%= option.id %>><%= option.name %></label><input name=<%= @name %> type=radio value=<%= option.id %> id=<%= option.id %> />
+    <label for=<%= @name %>-<%= option.id %>><%= option.name %></label><input <%= index == 0 ? "checked" : "" %> name=<%= @name %> type=<%= @type %> value=<%= option.id %> id=<%= @name %>-<%= option.id %> />
   </div>
 <% end %>

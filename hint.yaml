@@ -2,8 +2,32 @@ options:
   profiles:
     - id: high
       name: High priority
+      options:
+        # strict
+        eqeqeq: true
+        undef: true
+        unused: true
+        # relax
+        eqnull: true
+        laxcomma: true
+        multistr: true
+        sub: true
+        es5: true
+        asi: true
+        smarttabs: true
     - id: strict
       name: Strict
+      options:
+        bitwise: true
+        curly: true
+        eqeqeq: true
+        latedef: true
+        noarg: true
+        noempty: true
+        undef: true
+        unused: true
+        strict: true
+        trailing: true
     - id: custom
       name: Custom
 
@@ -22,13 +46,24 @@ options:
   libraries:
     - id: jquery
       name: jQuery
+      globals: ["$","jQuery"]
     - id: d3
       name: d3
+      globals: ["d3"]
     - id: backbone
       name: Backbone
+      globals: ["Backbone"]
     - id: ember
       name: Ember
+      globals: ["Ember"]
     - id: zepto
       name: Zepto
+      globals: ["Zepto","$"]
+    - id: highcharts
+      name: Highcharts
+      globals: ["Highcharts"]
+    - id: requirejs
+      name: RequireJS
+      globals: ["define","require"]
 
 

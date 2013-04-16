@@ -6,36 +6,34 @@ title: JSLint options generator - quickly generate JSHint and JSLint options
 <% options = HintOptions.fetch %>
 <div class=lint>
 
-  <h1>JSLint configurator</h1>
+  <h1>Quickly generate a JSHint config file</h1>
 
-  <h2>Lint configurator</h2>
+  <p>If you're just looking for quick wins, here's a high priority lint file for the browser &amp; node:</p>
 
-  <p>Configuring JSHint or JSLint takes a while - there are a heap of options! Below you can either quickly choose a profile for your environment, or set any option explicitly to create a custom profile.</p>
+  <p>
+    <a>Browser</a>
+    <a>Node</a>
+  </p>
 
   <div class=full>
 
     <div class=profiles>
       <h3>Profiles</h3>
-      <p>Profiles are pre-made sets of options for certain styles and conventions.</p>
-      <%= render "radios", options: options.profiles, name: "profile" %>
+      <p>Pre-made sets of options for certain styles and conventions - or custom for advanced.</p>
+      <%= render "options", options: options.profiles, name: "profile", type: "radio" %>
     </div>
 
     <div class=environment>
       <h3>Environment</h3>
       <p>Sets up the environement your code runs in - available libraries and built-in APIs.</p>
 
-      <%= render "radios", options: options.environments, name: "environment" %>
+      <%= render "options", options: options.environments, name: "environment", type: "radio" %>
     </div>
 
     <div class=environment>
       <h3>Libraries</h3>
       <p>Declare the libraries you're using.</p>
-      <%= render "checkboxes", options: options.libraries, name: "libraries" %>
-    </div>
-
-    <div class=tool>
-      <h3>Linting tool</h3>
-      <%= render "radios", options: options.libraries, name: "tool" %>
+      <%= render "options", options: options.libraries, name: "libraries", type: "checkbox" %>
     </div>
 
     <div class=layout>
@@ -48,6 +46,9 @@ title: JSLint options generator - quickly generate JSHint and JSLint options
       <p>Disallows dangerous or ambigous language features or coding styles.</p>
     </div>
 
+    <div class=globals>
+
+    </div>
 
     <div class=download>
       <h3>Download/export</h3>
