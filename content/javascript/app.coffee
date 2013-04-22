@@ -1,3 +1,0 @@
-lint = angular.module("lint",[]);
-
-
