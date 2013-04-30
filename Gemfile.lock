@@ -12,11 +12,13 @@ GEM
       colored (>= 1.2)
     execjs (1.4.0)
       multi_json (~> 1.0)
+    kramdown (0.14.2)
     listen (0.7.3)
     mime-types (1.22)
     multi_json (1.7.2)
     nanoc (3.6.2)
       cri (~> 2.3)
+    nokogiri (1.5.9)
     rack (1.2.8)
     sass (3.2.7)
 
@@ -26,7 +28,9 @@ PLATFORMS
 DEPENDENCIES
   asdf
   coffee-script
+  kramdown
   listen
   mime-types
   nanoc
+  nokogiri
   sass

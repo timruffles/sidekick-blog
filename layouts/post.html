@@ -1,0 +1,20 @@
+<%= render "header" %>
+<body class="blog post">
+
+  <%= render "blog_header" %>
+
+  <div class=article>
+    <h1><%= item[:title] %></h1>
+
+    <div class=content>
+      <%= yield %>
+    </div>
+
+    <div class=sidebar>
+      <%= @item[:content_for_sidebar] %>
+    </div>
+
+  </div>
+
+</body>
+</html>

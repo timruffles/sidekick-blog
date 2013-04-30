@@ -1,0 +1,15 @@
+<div class=footer>
+  <% 
+  require "cgi"
+  path = if id = item[:hn_id]
+    "?id=#{id}"
+  else
+    "submitlink?u=#{CGI.escape url_for(item)}&t=#{CGI.escape item[:title]}"
+  end
+  url = "https://news.ycombinator.com/#{path}"
+  %>
+  <div class=links>
+    <a class=hn href='<%= url %>'>Discuss</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+</div>

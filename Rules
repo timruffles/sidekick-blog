@@ -13,6 +13,24 @@
 #   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
 #   because “*” matches zero or more characters.
 
+@config[:base_url] = ENV["BASE_URL"] if ENV["BASE_URL"]
+
+preprocess do
+  def identify_articles
+    @items.each do |item|
+      if %r{/posts/} =~ item.identifier && item[:published]
+        item[:kind] = "article"
+      end
+    end
+  end
+  def validate_articles
+    articles.each {|a| raise "Invalid post #{a.identifier}" if !a[:kind] || !a[:created_at] }
+  end
+
+  identify_articles
+  validate_articles
+end
+
 compile %r{/sass/(?!_).*} do
   filter :sass
 end
@@ -33,12 +51,20 @@ route '/js/*' do
   item.identifier.chop + ".js"
 end
 
+compile '/posts/*' do
+  filter item[:filter] || :kramdown
+  layout 'blog'
+end
+route '/posts/*' do
+  "/post/#{slug item[:title]}/index.html"
+end
+
 compile '*' do
   if item.binary?
     # don’t filter binary items
   else
-    filter :erb
-    layout 'default'
+    filter item[:filter] || :erb
+    layout item[:layout] || 'default'
   end
 end
 

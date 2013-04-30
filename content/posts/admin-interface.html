@@ -1,0 +1,53 @@
+---
+layout: default
+title: Don't build your admin interface with HTML
+created_at: 2013/04/16
+filter: erb
+---
+
+<p>If you're a technical team you love CLIs and spend a lot of time with them. Why would you build your admin interface with HTML/CSS? For SidekickJS, we've gone for a CLI around an admin shell for the following reasons:</p>
+<h2>Speed</h2>
+<p>However fast you can write HTML, and however simpler your tool, I bet you could create the equivalent CLI in half the time. HTML/CSS interfaces have so many more moving parts than CLIs, and unless you're using the PHP "everything in one file" approach, these will be spread throughout your app.</p>
+<h2>Hackability</h2>
+<p>How many times have you wanted to script up data you've seen on a website? Why end up in this situation with code you own?<p>
+<p>For our admin interface we use Ruby's DSL powers to make it easy to combine a script and UI API:</p>
+<code>
+def analysis_statuses(project_id)
+Project.find(project_id).analyses.map do |analysis|
+# ...
+end
+end
+table_view :analysis_statuses, :sha, :analysed_at, :score, :issue_count
+</code>
+<h2>Authentication</h2>
+<p>Admin authentication is uneeded work when you're starting out. Why not stick with the most secure authentication you can - SSH? No wheels to rebuild.</p>
+<h2>SRP</h2>
+<p>We've been on teams before where the admin interface added considerable weight to the app's routing &amp; assets. The admin shell approach avoids
+<h2>Focus</h2>
+<p>Admin interfaces are 100% about functionality. No customer is going to see them. They can look terrible, but as soon as you start building in HTML/CSS you are in web design mode. Bootstrap might be used, and then you'll worry about button alignment, colour schemes and 100 other unecessary trivilities.</p>
+<p>CLI apps are quick and simple and provide no temptation to waste time on needlessly making it beautiful.</p>
+
+<h2>Example session</h2>
+<p>Here's a quick example session - we had a stuck commit for a user, and wanted to find out why:</p>
+<code>
+$ user = User.find(user_id)
+$ project = user.projects.find_by_name(project_name)
+$ shell = AdminShell.project(project.id)
+$ shell.analysis_status_table
+SHA      | ANALYSED_AT             | CREATED_AT
+--------------------------------------------------------------
+9dac05c2 | 2013-04-19 13:11:22     | 2013-04-02 17:25:35
+429aef66 | 2013-04-19 13:11:22     | 2013-04-02 17:23:20
+de9b3385 | 2013-04-19 13:11:23     | 2013-04-02 17:21:16
+2139f988 | 2013-04-19 13:11:23     | 2013-04-02 17:18:40
+af144a6c | 2013-04-19 13:11:24     | 2013-04-02 17:10:42
+4a776538 |                         | 2013-04-02 12:46:38
+c9303c6e |                         | 2013-04-02 10:13:38
+98eea100 |                         | 2013-04-02 09:43:35
+f73d2499 |                         | 2013-04-01 19:51:27
+$ analysis = shell.analysis_status.map(&amp;:data).map(&amp;:class)
+["Map", "Map", "String", "Map", "Map", "Map", "Map", "Map"]
+</code>
+<p>It turned out that the analysis had serialized a no-longer existing class. Having the ability to seamlessly go from the UI to custom querying is incredibily powerful. This is doubly true when you can access exactly the data seen in a table in a programatic way - just by dropping the '_table' suffix.</p>
+
+
