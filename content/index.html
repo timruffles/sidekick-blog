@@ -1,14 +1,13 @@
 ---
 layout: blog_list
-title: 
+title: SidekickJS's tech/bootstrapping blog
 ---
 
+<h1><%= @item[:title] %></h1>
+
 <% sorted_articles[0..2].each do |item| %>
-  <div class="post">
+  <div class=front_title>
     <h2><a href=<%= url_for item %>><%= item[:title] %></a></h2>
-    <p>
-      <%= replace_tags(item.compiled_content,"h2","h3") %>
-    </p>
-    <%= render "blog_footer", {item: item} %>
+    <span class=date><%= item[:created_at] %></span>
   </div>
 <% end %>

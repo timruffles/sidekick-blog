@@ -100,29 +100,28 @@ body
       background: #4099FF
       &:hover
         background: lighten(#4099FF,5%)
+  .front_title
+    max-width: 40rem
+    overflow: auto
+    h2
+      font-size: 1.5rem
+      margin-bottom: 0
+    span
+      font-size: 1rem
+      padding-left: 2rem
+    a
+      color: inherit
+      &:hover
+        text-decoration: none
 
 
-.blog.post
+.blog
   h1
     +main-title
   h2
     +secondary-title
   .header h2
     +site-name
-
-.blog.list
-  .header
-    h1
-      +site-name
-  .post
-    h2
-      +main-title
-      a
-        color: #fff
-        text-decoration: none
-        display: block
-    h3
-      +secondary-title
 
 code
   white-space: pre

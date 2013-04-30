@@ -10,9 +10,7 @@
       <%= yield %>
     </div>
 
-    <div class=sidebar>
-      <%= @item[:content_for_sidebar] %>
-    </div>
+    <%= render "blog_footer", item: item %>
 
   </div>
 

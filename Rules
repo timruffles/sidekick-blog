@@ -53,7 +53,7 @@ end
 
 compile '/posts/*' do
   filter item[:filter] || :kramdown
-  layout 'blog'
+  layout 'post'
 end
 route '/posts/*' do
   "/post/#{slug item[:title]}/index.html"
