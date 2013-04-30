@@ -11,3 +11,5 @@ gem "nokogiri"
 
 gem "coffee-script"
 gem "sass"
+
+gem "command_line_reporter"
