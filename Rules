@@ -17,10 +17,10 @@
 
 preprocess do
   def identify_articles
-    @items.each do |item|
-      if %r{/posts/} =~ item.identifier && item[:published]
-        item[:kind] = "article"
-      end
+    @items.delete_if do |item|
+      article = %r{/posts/} =~ item.identifier 
+      item[:kind] = "article" if article
+      article && !item[:published]
     end
   end
   def validate_articles
