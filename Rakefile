@@ -8,6 +8,7 @@ task :deploy do
   end
   %x(
   set -e
+  rm -rf output
   git checkout gh-pages
   git reset --hard master
   BASE_URL=/sidekick-blog nanoc compile
