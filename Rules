@@ -37,6 +37,10 @@ end
 route %r{/sass/(?!_).*} do
   item.identifier.gsub("/sass/","/css/").chop + ".css"
 end
+route '/sass/_*' do
+  # ignore
+  nil
+end
 
 compile '/coffee/*' do
   filter :coffeescript
