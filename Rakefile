@@ -11,7 +11,7 @@ task :deploy do
   git checkout gh-pages
   git reset --hard master
   BASE_URL=/sidekick-blog nanoc compile
-  ls | grep -v output | while read file; do rm -rf $file; done 
+  ls | grep -v output | grep -v tmp | while read file; do rm -rf $file; done 
   mv output/* .
   rm -rf output
   echo "sidekicksrc.com" > CNAME
