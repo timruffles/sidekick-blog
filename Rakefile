@@ -14,8 +14,10 @@ task :deploy do
   ls | grep -v output | while read file; do rm -rf $file; done 
   mv output/* .
   rm -rf output
+  echo "sidekicksrc.com" > CNAME
   git add . -A
   git commit -m 'latest'
   git push --force public gh-pages
+  git checkout master
   )
 end
