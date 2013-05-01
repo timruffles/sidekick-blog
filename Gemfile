@@ -6,6 +6,7 @@ gem "asdf"
 gem "mime-types"
 
 gem 'kramdown'
+gem 'coderay'
 
 gem "nokogiri"
 

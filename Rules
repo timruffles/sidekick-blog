@@ -56,10 +56,19 @@ route '/js/*' do
 end
 
 compile '/posts/*' do
-  filter item[:filter] || :kramdown
+  return nil unless item[:published]
+  if item[:filter]
+    filter *item[:filter]
+  else
+    case item[:extension]
+    when "kram"
+      filter :kramdown, coderay_line_numbers: nil
+    end
+  end
   layout 'post'
 end
 route '/posts/*' do
+  return nil unless item[:published]
   "/post/#{slug item[:title]}/index.html"
 end
 
