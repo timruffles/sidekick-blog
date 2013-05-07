@@ -73,7 +73,7 @@ body
     padding-right: 2rem
   code
     display: block
-  p
+  p, ul, ol, pre, code
     +content-width
   .sidebar
     float: right
@@ -104,7 +104,7 @@ body
       &:hover
         background: lighten(#4099FF,5%)
   .front_title
-    max-width: 40rem
+    +content-width
     overflow: auto
     h2
       font-size: 1.5rem
@@ -127,4 +127,4 @@ body
     +site-name
 
 code
-  white-space: pre
+  white-space: pre-wrap

@@ -5,18 +5,24 @@ ffs: hello
 published: fishy
 ---
 
-I've recently switched to an entirely programmatically configured development environment. It takes some work to setup, but I've saved a lot of time in aggregate. If you're using a tool like Chef or Puppet anyway, you'll have a head start.
+I've switched to a programmatically configured development environment. It takes some work to setup, but it's saved me a heap of time already, even for a bootstrapped one-man product.
 
-What do I mean by programatic development environement? I mean all of the tools I use are installed and configured via script, rather than manual installation, and live in a repo. If I wanted to I could get a fresh laptop, install git and the chef gem, and I'd have a new development environment in 10 minutes, which mirros my production servers, and with all my favourite tools configured as I like them.
+By programatic development environement I mean all of the tools I use, and my development server and services, are installed and configured via code. If I wanted to I could get a fresh laptop, install git and the chef gem, and I'd have a new development environment in 10 minutes, which mirrors my production servers, and with all my favourite tools configured as I like them.
 
-Differences between development and production environments are an evergreen source of bugs. Managing it with Chef lets you develop and test on the same OS, with the same packages, as you have in production.
+To summaries the pros and cons I've found:
 
-Below I've outlined the tools I've used with some pointers on how they work and where to look.
+- minimise production/development difference, an evergreen source of bugs
+- make it easy to instantly bring on new developers or contractors
+- makes it worth spending time configuring things right - you know you'll have to do it once, ever
+- lowers productivity risk of OS/HDD meltdown or theft
+- makes having a unified dev environment for pairing very simple
 
-## Tools
+The sole con for me has been the up-front cost. If you like GUI editors or IDEs this technique would also be a lot trickier as they'll live on your host machine, but I'm sure you could supplment it to cover that too.
 
-- Chef - define enviroment
-- VirtualBox - run a virtual machine to your env
+## Tools used
+
+- Chef - defines and creates enviroment
+- VirtualBox - runs a virtual machine to contain your environment
 - Vagrant - script creation of virtual machines
 - Tmux or screen (opt
 o l
@@ -24,11 +30,11 @@ onal) - keep a persistant development environement
 
 ## Chef
 
-Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it's either familar for you as a Rubyist, or a new language that's easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployments or maintainence.
+Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it's either familiar for you as a Rubyist, or a new language that's easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployments or maintainence.
 
-It's primarily composed of cookbooks of recipies - the cookbook is the unit of distribution, the recipies are scripts to install or configure components of your system. There are heaps of cookbooks available, or you could simply capture an existing bash workflow.
+It's primarily composed of cookbooks of recipies - the cookbook is the unit of distribution, the recipies are scripts to install or configure components of your system. There are heaps of cookbooks available for databases, daemons like runit and packaging systems.
 
-Within recipies the work is done by resources - these are actions to take, files or templates to create, or packages to install. They are idempotent - specifying a desired state, and they do nothing once that state is achieved regardless how many times Chef is run. For example, the file resource will ensure a file exists with specific ownership and permissions. The first time Chef runs a receipe containing this resource it's created, later it's ignored if unchanged, or reset to the specified state if anything has changed. 
+Within recipies the work is done by resources - these are actions to take, files or templates to create, or packages to install. They are idempotent - specifying a desired state, they do nothing once that state is achieved regardless how many times Chef is run. For example, the file resource will ensure a file exists with specific ownership and permissions. The first time Chef runs a receipe containing this resource it's created, later it's ignored if unchanged, or reset to the specified state if anything has changed. 
 
 A complete Chef tutorial would take too long - there are [great docs](http://docs.opscode.com/).
 
@@ -84,7 +90,7 @@ end
 
 ## Tmux or screen
 
-Another advantage of this setup if you use a terminal based editor like Vim or Emacs is being able to create persistant development environments. I keep a tmux session alive for each repository, tailing logs, running test servers and my editor.
+If you use a terminal based editor like Vim or Emacs is being able to create persistant development environments. I keep a tmux session alive for each repository, tailing logs, running test servers and my editor.
 
 If you prefer a GUI editor like Textmate, Sublime or an IDE, you could either use a shared folder to access the files, or run the editor within the dev env if it's supported by Linux. The second option is ideal as it lets you capture the config programatically - however it's likely to be slow as you're within the VM.
 
