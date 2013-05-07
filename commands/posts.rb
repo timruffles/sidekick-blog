@@ -59,7 +59,7 @@ class PostsTable
       end
       @posts.each do |post|
         row do
-          column(post[:title])
+          column(post[:title] || post.identifier)
           column(WC.count(post.compiled_content))
           column(post[:created_at])
           column(post[:published] ? c("✔",:green) : c("✖",:red))

@@ -17,14 +17,13 @@
 
 preprocess do
   def identify_articles
-    @items.delete_if do |item|
-      article = %r{/posts/} =~ item.identifier 
+    @items.each do |item|
+      article = %r{/posts/} =~ item.identifier && item[:published]
       item[:kind] = "article" if article
-      article && !item[:published]
     end
   end
   def validate_articles
-    articles.each {|a| raise "Invalid post #{a.identifier}" if !a[:kind] || !a[:created_at] }
+    articles.each {|a| raise "Invalid post #{a.identifier}" if a[:published] && (!a[:kind] || !a[:created_at]) }
   end
 
   identify_articles
@@ -56,20 +55,24 @@ route '/js/*' do
 end
 
 compile '/posts/*' do
-  return nil unless item[:published]
-  if item[:filter]
-    filter *item[:filter]
-  else
-    case item[:extension]
-    when "kram"
-      filter :kramdown, coderay_line_numbers: nil
+  if item[:published]
+    if item[:filter]
+      filter *item[:filter]
+    else
+      case item[:extension]
+      when "kram"
+        filter :kramdown, coderay_line_numbers: nil
+      end
     end
+    layout 'post'
   end
-  layout 'post'
 end
 route '/posts/*' do
-  return nil unless item[:published]
-  "/post/#{slug item[:title]}/index.html"
+  if item[:published]
+    "/post/#{slug item[:title]}/index.html"
+  else
+    nil
+  end
 end
 
 compile '*' do
