@@ -38,11 +38,11 @@ The sole con for me has been the up-front cost. If you like GUI editors or IDEs 
 - Chef - defines and creates environment
 - VirtualBox - runs a virtual machine to contain your environment
 - Vagrant - script creation of virtual machines
-- tmux or screen - keep a persistant development session
+- tmux or screen - keep a persistent development session
 
 ## Chef
 
-Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it's either familiar for you as a Rubyist, or a new language that's easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployment or maintainence.
+Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it's either familiar for you as a Rubyist, or a new language that's easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployment or maintenance.
 
 ~~~ruby
 template "/etc/nginx.conf" do
@@ -54,7 +54,7 @@ end
 
 A complete Chef tutorial is out of scope, but it's easy to learn and there are [great docs](http://docs.opscode.com/).
 
-My strategy has been to split out the development environement into a separate receipe which is placed in the run list for my local environment. This takes care of:
+My strategy has been to split out the development environment into a separate recipe which is placed in the run list for my local environment. This takes care of:
 
 - dotfiles - SSH, `.{input,bash}rc` etc
 - vim ($EDITOR), vim plugins
@@ -62,7 +62,7 @@ My strategy has been to split out the development environement into a separate r
 - ack &amp; other command line tools
 - local instances of Postgres, redis etc
 
-Once the development receipe has been run I have my development repos cloned, my keys in place (kept out of version control, in secure online storage), my editor ready and configured. I can be writing, commiting and deploying code immediately.
+Once the development recipe has been run I have my development repos cloned, my keys in place (kept out of version control, in secure online storage), my editor ready and configured. I can be writing, committing and deploying code immediately.
 
 I also run 2 instances of the application - one over port 80 from the `/srv` directory as in production, the other from `/home`, over the same server, just changing ports. I edit and push code from the `/home` directory. When I'm happy with a feature in `/home` I reprovision the VM to run the deploy - and I know it's ready to deploy cleanly in production!
 
@@ -108,7 +108,7 @@ end
 
 ## tmux or screen
 
-Since our development environment now lives inside our VM, we'll need to SSH in. Recreating the editor/command line sessions everytime you develop is a waste of time. A terminal multiplexer allows you to create persistant development sessions running multiple commands in different panes.
+Since our development environment now lives inside our VM, we'll need to SSH in. Recreating the editor/command line sessions every-time you develop is a waste of time. A terminal multiplexer allows you to create persistent development sessions running multiple commands in different panes.
 
 I keep a [tmux](http://tmux.sourceforge.net/) session alive for each repository, tailing logs, running test servers and my editor. By suspending the VM rather than shutting it down I can run the same tmux session for weeks.
 
