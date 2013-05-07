@@ -1,8 +1,6 @@
 ---
 title: Programmatic development environment
 created_at: 2013/04/22
-ffs: hello
-published: fishy
 ---
 
 I've switched to a programmatically configured development environment. It takes some work to setup, but it's saved me a heap of time already, even for a bootstrapped one-man product.
