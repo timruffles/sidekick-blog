@@ -2,7 +2,7 @@
   <% 
   require "cgi"
   path = if id = item[:hn_id]
-    "?id=#{id}"
+    "item?id=#{id}"
   else
     "submitlink?u=#{CGI.escape url_for(item)}&t=#{CGI.escape item[:title]}"
   end
