@@ -11,7 +11,7 @@ task :deploy do
   rm -rf output
   git checkout gh-pages
   git reset --hard master
-  BASE_URL='https://www.sidekicksrc.com' nanoc compile
+  DOMAIN=sidekicksrc.com BASE_URL='https://www.sidekicksrc.com' nanoc compile
   ls | grep -v output | grep -v tmp | while read file; do rm -rf $file; done 
   mv output/* .
   rm -rf output

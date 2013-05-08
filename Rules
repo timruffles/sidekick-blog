@@ -14,6 +14,7 @@
 #   because “*” matches zero or more characters.
 
 @config[:base_url] = ENV["BASE_URL"] if ENV["BASE_URL"]
+@config[:domain] = ENV["DOMAIN"] if ENV["DOMAIN"]
 
 preprocess do
   def identify_articles
