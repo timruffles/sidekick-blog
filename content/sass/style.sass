@@ -93,20 +93,23 @@ body
     padding-bottom: 0.25rem
 
 
-
   .footer
     margin-top: 2rem
     padding-left: 2rem
     .links
       +content-width
-    a
+      overflow: auto
+      a
+        display: block
+        width: 50%
+        float: left
+        text-align: center
+        color: #fff
+        padding: 0.5rem 0
+        text-decoration: none
+    .sk-link
+      margin-top: 1rem
       display: block
-      width: 50%
-      float: left
-      text-align: center
-      color: #fff
-      padding: 0.5rem 0
-      text-decoration: none
     .hn
       background: #ff6600
       &:hover
