@@ -9,7 +9,7 @@
   url = "https://news.ycombinator.com/#{path}"
   %>
   <div class=links>
-    <a class=hn href='<%= url %>'>Discuss</a>
+    <a class=hn href='<%= url %>'>Discuss<%= item[:hn_karma] ? " (#{item[:hn_karma]})" : "" %></a>
     <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
   </div>
   <a class=sk-link href="https://www.sidekickjs.com">Write Javascript? Track your code quality with SidekickJS</a>

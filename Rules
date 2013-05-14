@@ -16,6 +16,8 @@
 @config[:base_url] = ENV["BASE_URL"] if ENV["BASE_URL"]
 @config[:domain] = ENV["DOMAIN"] if ENV["DOMAIN"]
 
+require "pry"
+
 preprocess do
   def identify_articles
     @items.each do |item|
@@ -55,22 +57,42 @@ route '/js/*' do
   item.identifier.chop + ".js"
 end
 
-compile '/posts/*' do
-  if item[:published]
-    if item[:filter]
-      filter *item[:filter]
-    else
-      case item[:extension]
-      when "kram"
-        filter :kramdown, coderay_line_numbers: nil
+
+
+class Nanoc::RuleContext
+  def post_or_page(item,the_layout = "post")
+    if item[:published]
+      if item[:filter]
+        filter *item[:filter]
+      else
+        case item[:extension]
+        when "kram"
+          filter :kramdown, coderay_line_numbers: nil
+        end
       end
+      layout the_layout
     end
-    layout 'post'
   end
 end
+
+compile '/pages/*' do 
+  post_or_page(item,"page")
+end
+compile '/posts/*' do 
+  post_or_page(item)
+end
+
 route '/posts/*' do
   if item[:published]
     "/post/#{slug item[:title]}/index.html"
+  else
+    nil
+  end
+end
+
+route '/pages/*' do
+  if item[:published]
+    "/#{slug item[:title]}/index.html"
   else
     nil
   end
