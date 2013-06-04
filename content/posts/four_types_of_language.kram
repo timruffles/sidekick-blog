@@ -1,0 +1,151 @@
+---
+title: Four types of language
+created_at: 2013/05/19
+published: false
+---
+
+
+<div id="viz"></div>
+
+
+
+<style>
+  .point {
+    fill: #fa0000;
+  }
+</style>
+<script src="/js/vendor/d3.js"></script>
+<script src="/js/editable_scatter.js"></script>
+<script>
+
+  var data = [
+    {
+      name: "Go",
+      zeal: 2,
+      size: 3
+    },
+    {
+      name: "Haskell",
+      zeal: 10,
+      size: 9.5
+    },
+    {
+      name: "Factor",
+      zeal: 10,
+      size: 1
+    },
+    {
+      name: "Assembly",
+      zeal: 1,
+      size: 1
+    },
+    {
+      name: "C",
+      zeal: 2,
+      size: 2
+    },
+    {
+      name: "C++",
+      zeal: 4,
+      size: 10
+    },
+    {
+      name: "Ruby",
+      zeal: 2,
+      size: 8.5
+    },
+    {
+      name: "Python",
+      zeal: 3,
+      size: 6
+    },
+    {
+      name: "Clojure",
+      zeal: 6,
+      size: 6
+    },
+    {
+      name: "Common-Lisp",
+      zeal: 4,
+      size: 6
+    },
+    {
+      name: "Scheme",
+      zeal: 5,
+      size: 2
+    },
+    {
+      name: "PHP",
+      zeal: 1,
+      size: 9
+    },
+    {
+      name: "JS (Good parts)",
+      zeal: 2,
+      size: 4
+    },
+    {
+      name: "JS (Bad parts)",
+      zeal: 1,
+      size: 6
+    },
+    {
+      name: "Coffeescript",
+      zeal: 2,
+      size: 5
+    },
+    {
+      name: "Dart",
+      zeal: 5,
+      size: 8
+    },
+    {
+      name: "Java",
+      zeal: 8,
+      size: 8.5
+    },
+    {
+      name: "C#",
+      zeal: 5,
+      size: 9
+    },
+    {
+      name: "OCaml",
+      zeal: 8,
+      size: 6
+    },
+    {
+      name: "Perl 6",
+      zeal: 2,
+      size: 9
+    },
+    {
+      name: "Objective-C",
+      zeal: 4,
+      size: 7
+    },
+    {
+      name: "Scala",
+      zeal: 7,
+      size: 9.5
+    },
+    {
+      name: "Lua",
+      zeal: 2,
+      size: 3.5
+    },
+    {
+      name: "VB",
+      zeal: 1,
+      size: 7
+    }
+  ];
+
+  editableScatter({
+    data: data,
+    w: 600,
+    h: 400,
+    el: document.getElementById("viz")
+  });
+
+</script>
