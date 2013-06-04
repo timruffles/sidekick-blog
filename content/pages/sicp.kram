@@ -9,24 +9,15 @@ published: true
 Running 5 Mondays starting June 3rd 2013, at 19.00. 
 
 
-## Sign up to secure your place
+## Mailing list
 
-We had over 70 people get in touch, but we can fit only around 15. Please confirm now to secure your place!
-
-<form action="https://docs.google.com/forms/d/10AR6oEbweryd55EE68kQr9owk8YxyZ4kRfJSia4kfLU/formResponse" method="POST" id="ss-form" target="_self" onsubmit="">
-  <label class="ss-q-item-label" for="entry_765018937">
-    Email
-  </label>
-  <input type="text" name="entry.765018937" value="" class="ss-q-short" id="entry_765018937" dir="auto" placeholder="pg@hn.com">
-  <input type="submit" name="submit" value="Submit" id="ss-submit">
-</form>
-
+Join the [mailing list](https://groups.google.com/forum/?hl=en-GB&fromgroups#!forum/sicp-blitz) to see the exercises discussed.
 
 ## Location
 
-[Camden Town Unlimited](https://maps.google.co.uk/maps?q=Camden+Town+Unlimited,+37+Camden+High+Street,+London&hl=en&sll=51.528642,-0.101599&sspn=0.674087,1.533966&oq=camden&hq=Camden+Town+Unlimited,&hnear=37+Camden+High+St,+London+NW1+7JE,+United+Kingdom&t=m&z=16) next to Northern Line stop Mornington Crescent, or 5 mins walk from Camden Town tube if you're on Bank branch.
+[Camden Town Unlimited](https://maps.google.co.uk/maps?q=Camden+Town+Unlimited,+37+Camden+High+Street,+London&hl=en&sll=51.528642,-0.101599&sspn=0.674087,1.533966&oq=camden&hq=Camden+Town+Unlimited,&hnear=37+Camden+High+St,+London+NW1+7JE,+United+Kingdom&t=m&z=16) in Symes Mews (pass by a bright pink Age UK shop on the high street) next to Northern Line stop Mornington Crescent, or 5 mins walk from Camden Town tube if you're on Bank branch.
 
-Buzz at the door for Camden Town Unlimited, and we'll send our mobile #s in case you're a bit late. We'll have a projector, WiFi of dubious reliability, and beers/tea as preferred!
+Buzz at the door for Camden Town Unlimited (middle button), and we'll send our mobile #s in case you're a bit late. We'll have a projector, WiFi of dubious reliability, and beers/tea as preferred!
 
 <iframe width="425" height="150" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.uk/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=Camden+Town+Unlimited,+37+Camden+High+Street,+London&amp;aq=0&amp;oq=camden&amp;sll=51.528642,-0.101599&amp;sspn=0.674087,1.533966&amp;ie=UTF8&amp;hq=Camden+Town+Unlimited,&amp;hnear=37+Camden+High+St,+London+NW1+7JE,+United+Kingdom&amp;t=m&amp;ll=51.535022,-0.13919&amp;spn=0.006295,0.006295&amp;output=embed"></iframe><br /><small><a href="https://maps.google.co.uk/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q=Camden+Town+Unlimited,+37+Camden+High+Street,+London&amp;aq=0&amp;oq=camden&amp;sll=51.528642,-0.101599&amp;sspn=0.674087,1.533966&amp;ie=UTF8&amp;hq=Camden+Town+Unlimited,&amp;hnear=37+Camden+High+St,+London+NW1+7JE,+United+Kingdom&amp;t=m&amp;ll=51.535022,-0.13919&amp;spn=0.006295,0.006295" style="color:#0000FF;text-align:left">View Larger Map</a></small>
 
@@ -48,4 +39,4 @@ As said in the initial signup feel free to use any language you like. Phil & I (
 
 [SidekickJS - Javascript code-quality tool for teams](https://www.sidekickjs.com). If you write Javascript, get in touch, we're looking for beta testers.
 
-[ApiAxel - Open Source API Management Platform ](http://apiaxle.com/) - a proxy that sits on your network, in front of your API(s) and manages things that you shouldn't have to.
+[ApiAxle - Open Source API Management Platform ](http://apiaxle.com/) - a proxy that sits on your network, in front of your API(s) and manages things that you shouldn't have to.
