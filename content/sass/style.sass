@@ -1,5 +1,6 @@
 @import base
 @import forms
+@import eg_test
 
 body
   font-size: 18px
@@ -150,3 +151,22 @@ code
 .page .wrap
   width: 40rem
   margin: 0 auto
+
+div[data-describe], div[data-it], div[data-before], div[data-before-each], div[after], div[after-each] 
+  margin-left: 2rem
+  +content-width
+
+.eg-annotation
+  +content-width
+  text-align: right
+  margin: 0.5rem 2rem
+  height: 2rem
+  line-height: 2rem
+  padding: 0 1rem
+  &.passed
+    color: #2ecc71
+  &.failed
+    color: #e67e22
+  .result
+    font-size: .8rem
+    margin-right: 1rem

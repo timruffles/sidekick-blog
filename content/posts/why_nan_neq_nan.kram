@@ -1,0 +1,30 @@
+---
+title: Why NaN !== NaN (and shouldn't)
+created_at: 2013/06/19
+published: true
+---
+
+`NaN !== NaN` for a good reason, and it's funny that lots of '[Javascript](http://net.tutsplus.com/tutorials/javascript-ajax/top-10-things-that-javascript-got-wrong/) [sucks](https://wiki.theory.org/YourLanguageSucks#Type_System) [lol](https://twitter.com/damln/status/198052578163036160)' posts highlight it as one of Javascript's bad parts.
+
+In Javascript `NaN` stands in for numbers that are not mathematically sensible - similar to asking 'what is the weight of the verb "laugh"', `NaN` is an absurdity. We get them in different places:
+
+~~~javascript
+Math.log(-1) // NaN
+Math.acos(2) // NaN
+0 / 0 // NaN
+Number(undefined) // NaN
+parseInt("I'm not really a maths person, can we just use words?") // NaN
+~~~
+
+Since `NaN` means 'you commited a category error', if it were equal to itself we'd get all sorts of strange behaviour. Would you prefer the following equality tests to pass?
+
+~~~javascript
+Math.log(-1) === parseInt("oh want a number? one");
+0 / 0 === Math.acos(2)
+~~~
+
+Commonly, the next thing after bemoaning this 'problem' is to question how we can identify `NaN` values if we `NaN !== NaN`. Well Javascript has contained the global `isNaN()` function from version one. `isNaN` can be confusing thanks to implicit coercion (an evergreen source of JS gotchas) on being passed strings or literals. However, when using `isNaN()` that's usually fine as you're expecting a numeric. If you've somehow got code that could either be a string or a number (yuk), you can shim it with `function isNaN(x) { return x !== x }` (or wait for the [ES6 version](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN)) 
+
+Finally it might be worth questioning whether throwing an exception would be a neater solution (Ruby throws the much more descriptive `Numerical argument is out of domain - "log"` for `log(-1)`). However it's specified by the [standard](https://en.wikipedia.org/wiki/IEEE_floating_point) [JS specifies](http://www.ecma-international.org/ecma-262/5.1/#sec-4.3.23) for floating point arithmetic, and so the rest of the language uses the 'return a `NaN` for exception' behaviour as well.
+
+Javascript has quirks, but the JS has bugs meme has lead to some innocent 'good parts' being condemmed along with them.
