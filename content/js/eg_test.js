@@ -409,21 +409,21 @@ if(typeof module !== "undefined") module.exports = Eg
 
 if(typeof window !== "undefined") {
   Eg.onPage(document.body)
+  var assert = this.assert = function(t) {
+    if(!t) throw new Error("fail")
+  }
+  var refute = this.refute = function(t) {
+    if(t) throw new Error("fail")
+  }
+  assert.equal = function(a,b) { 
+    if(a.forEach) {
+      if(!b.forEach) return false
+      if(a.length !== b.length) return false
+      return a.every(function(v,i) { assert.equal(v,b[i]) })
+    }
+    assert(a === b)
+  }
 }
 
-var assert = this.assert = function(t) {
-  if(!t) throw new Error("fail")
-}
-var refute = this.refute = function(t) {
-  if(t) throw new Error("fail")
-}
-assert.equal = function(a,b) { 
-  if(a.forEach) {
-    if(!b.forEach) return false
-    if(a.length !== b.length) return false
-    return a.every(function(v,i) { assert.equal(v,b[i]) })
-  }
-  assert(a === b)
-}
 
 })(this)
