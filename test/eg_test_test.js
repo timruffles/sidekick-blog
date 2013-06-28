@@ -1,75 +1,29 @@
 Eg = require("../content/js/eg_test")
 
-describe("Eg.Parser",function() {
-  
-  var testing = 
-    '<div data-describe="scopeOne">' +
-    '  <div data-scoped>' +
-    '    function shouldBeVisibleInScopeOneCode(weight) {' +
-    '    }' +
-    '  </div>' +
-    '  <div data-before>' +
-    '    shouldBeVisibleInScopeOneCode()' +
-    '  </div>' +
-    '  <div data-after>' +
-    '    shouldBeVisibleInScopeOneCode()' +
-    '  </div>' +
-    '  <div data-it="isTheFirstTestInScopeOne">' +
-    '    if(!(typeof shouldBeVisibleInScopeOneCode === "function")) {' +
-    '      throw new Error("Can not see variables in describe scope when nesting")' +
-    '    }' +
-    '  </div>' +
-    '  <div data-describe="scopeThree">' +
-    '    <div data-it="firstTestInScopeThree"' +
-    '      if(!(typeof shouldBeVisibleInScopeOneCode === "function")) {' +
-    '        throw new Error("Can not see variables in parent scope when nesting")' +
-    '      }' +
-    '    </div>' +
-    '  </div>' +
-    '</div>' +
-    '<div data-it="implicitlyInScopeOne">' +
-    '  if(!(typeof shouldBeVisibleInScopeOneCode === "function")) {' +
-    '    throw new Error("Can not see variables in describe scope when nesting")' +
-    '  }' +
-    '</div>' +
-    '<div data-describe="scopeTwo">' +
-    '</div>'
-    '<div data-it="implicitlyInScopeTwo">' +
-    '  if(typeof shouldBeVisibleInScopeOneCode === "function") {' +
-    '    throw new Error("Can see variables another describe scope")' +
-    '  }' +
-    '</div>'
+var tree
+before(function() {
+  function node(name,data,children) {
+    data = data || {}
+    data.content = "var a = 1 + 1;"
+    return new Eg.Dsl.Node(name,data,children)
+  }
 
-
-  
-  var parsed;
-  before(function() {
-    //parsed = new Eg.Dom($(testing)[0]).tests
-  })
-
-
-})
-
-function node(name,data,children) {
-  data = data || {}
-  data.content = "var a = 1 + 1;"
-  return new Eg.Dsl.Node(name,data,children)
-}
-var tree = [
-  node("describe",{name: "scopeOne"},[
-    node("scoped"),
-    node("before"),
-    node("after"),
-    node("it",{name: "it1"}),
-    node("describe",{name: "scopeThree"},[
-      node("it",{name: "it2"})
+  tree = node("descrbe",{name: "*root*"},[
+    node("describe",{name: "scopeOne"},[
+      node("scoped"),
+      node("before"),
+      node("after"),
+      node("it",{name: "it1"}),
+      node("describe",{name: "scopeThree"},[
+        node("it",{name: "it2"})
+      ]),
+      node("it",{name: "it5"}) // this shouldn't be given to scopeThree
     ]),
-    node("it",{name: "it5"}) // this shouldn't be given to scopeThree
-  ]),
-  node("it",{name: "it3"}),
-  node("describe",{name: "scopeTwo"}),
-  node("it",{name: "it4"})
-]
+    node("it",{name: "it3"}),
+    node("describe",{name: "scopeTwo"}),
+    node("it",{name: "it4"})
+  ])
+})
 
 describe("Eg.Tree",function() {
 
@@ -86,7 +40,7 @@ describe("Eg.Tree",function() {
   }
 
   before(function() {
-    testTree = Eg.TestTree.fromExamples(tree)
+    testTree = Eg.TestTree.dslToTree(tree)
     forLookup(testTree)
   })
 
@@ -121,7 +75,7 @@ describe("Eg.Mocha.Bdd",function() {
 
   var code
   before(function() {
-    var testTree = Eg.TestTree.fromExamples(tree)
+    var testTree = Eg.TestTree.dslToTree(tree)
     code = new Eg.Mocha.Bdd(testTree).javascript()
   })
 
@@ -129,4 +83,9 @@ describe("Eg.Mocha.Bdd",function() {
     assert.match(code,'describe')
   })
 
+  it("doesn't include root node",function() {
+    refute.match(code,'*root*')
+  })
+
 })
+
