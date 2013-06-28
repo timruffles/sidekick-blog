@@ -15,19 +15,21 @@ Eg.Dsl.Node = function(type,data,children) {
 Eg.TestTree = {}
 Eg.TestTree.fromExamples = function(examples,root) {
   var topLevel = !root
-  var root = root || {}
+  var root = root || {name: "root",tests: [], describes: [],type: "describe"}
   var describeContext = root
   examples.forEach(function(node) {
     switch(node.type) {
     case "describe":
-      var nodeRoot
-      root[node.name] = nodeRoot = {}
-      if(topLevel) describeContext = nodeRoot
-      return Eg.TestTree.fromExamples(node.children,nodeRoot) 
+      var testNode = {name: node.name, type: "describe",tests: [],describes: []}
+      root.describes.push(testNode)
+      if(topLevel) describeContext = testNode
+      return Eg.TestTree.fromExamples(node.children,testNode) 
     case "it":
-      return describeContext[node.name] = node
+      var testNode = pick(node,"type","content","name")
+      return describeContext.tests.push(testNode)
     default:
-      return describeContext[node.type] = node
+      var testNode = pick(node,"type","content")
+      return describeContext[node.type] = testNode
     }
   })
   return root
@@ -36,38 +38,51 @@ Eg.TestTree.fromExamples = function(examples,root) {
 Eg.Mocha = {}
 Eg.Mocha.Bdd = function(tree) {
   this.tree = tree
+  this.indentLevel = 0;
 }
 Eg.Mocha.Bdd.prototype = {
   javascript: function() {
-    var _this = this
-    var output = ""
-    walk(this.tree,function(key,node) {
-      output += _this.byType(node)
-    })
-    return output
+    return this.describe(this.tree)
   },
   describe: function(node) {
     var _this = this
-    'describe("' + node.name + '",function() {\n' +
-      node.scoped ? '' : this.scoped(node) +
-      node.before ? '' : this.before(node) +
-      node.after ? '' : this.after(node) +
-      omit(node,"scoped","before","after").reduce(function(str,it) {
-        return str + _this.byType(it)
+    var output = []
+    output.push( this.i('describe("' + node.name + '",function() {\n') )
+    this.outdent()
+    output.push([
+      node.scoped ? this.scoped(node.scoped) : '',
+      node.before ? this.before(node.before) : '',
+      node.after ? this.after(node.after) : '',
+      node.tests.reduce(function(str,it) {
+        return str + _this.it(it)
+      },''),
+      node.describes.reduce(function(str,it) {
+        return str + _this.describe(it)
       },'')
-    '})\n'
+    ].join(""))
+    this.indent()
+    output.push( this.i('})\n') )
+    return output.join("")
   },
+  i: function(str,n) {
+    return repeatString("  ",this.indentLevel + (n || 0)) + str
+  },
+  indent: function() { this.indentLevel -= 1 },
+  outdent: function() { this.indentLevel += 1 },
   it: function(node) {
-    return 'it("' + node.name + '",function() {\n' + node.content + '\n})\n'
+    return this.i('it("' + node.name + '",function() {\n')
+      + this.i(node.content + '\n',1) + this.i('})\n')
   },
   before: function(node) {
-    return 'before("' + node.name + '",function() {\n' + node.content + '\n})\n'
+    return this.i('before(function() {\n') + this.i(node.content + '\n',1) + 
+      this.i('})\n')
   },
   after: function(node) {
-    return 'after("' + node.name + '",function() {\n' + node.content + '\n})\n'
+    return this.i('after(function() {\n') + this.i(node.content + '\n',1) + 
+      this.i('})\n')
   },
   scoped: function(node) {
-    return node.content + '\n'
+    return this.i(node.content + '\n')
   },
   byType: function(node) {
     var handler = this[node.type]
@@ -117,8 +132,22 @@ function omit(o) {
   }
   return omitted
 }
+function pick(o) {
+  var keys = [].slice.call(arguments,1).reduce(function(o,k) { o[k] = 1; return o },{})
+  var picked = {}
+  for(var k in o) {
+    if(!keys[k]) continue
+    picked[k] = o[k]
+  }
+  return picked
+}
 function walk(obj,fn) {
   for(var k in obj) fn(k,obj[k])
+}
+function repeatString(str,n) {
+  var output = new Array(n)
+  while(n--) output[n] = str
+  return output.join("")
 }
 
 this.Eg = Eg

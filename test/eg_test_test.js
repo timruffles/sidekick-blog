@@ -52,7 +52,7 @@ describe("Eg.Parser",function() {
 
 function node(name,data,children) {
   data = data || {}
-  data.content = "something"
+  data.content = "var a = 1 + 1;"
   return new Eg.Dsl.Node(name,data,children)
 }
 var tree = [
@@ -75,12 +75,19 @@ describe("Eg.Tree",function() {
 
   var testTree 
 
+  function forLookup(tree) {
+    tree.describes.forEach(function(d) {
+      tree[d.name] = d
+      forLookup(d)
+    })
+  }
+  function testNames(scope) {
+    return scope.tests.map(function(n) { return n.name })
+  }
+
   before(function() {
     testTree = Eg.TestTree.fromExamples(tree)
-  })
-
-  after(function() {
-    //console.log(testTree)
+    forLookup(testTree)
   })
 
   it("has top level describes at top level",function() {
@@ -102,23 +109,24 @@ describe("Eg.Tree",function() {
   })
 
   it("can group its at top level implicitly",function() {
-    assert.defined( testTree.scopeOne.it3 )
-    refute.defined( testTree.scopeOne.it4 )
-    assert.defined( testTree.scopeTwo.it4 )
-    refute.defined( testTree.scopeTwo.it3 )
+    assert.contains( testNames(testTree.scopeOne), "it3" )
+    refute.contains( testNames(testTree.scopeOne), "it4" )
+    assert.contains( testNames(testTree.scopeTwo), "it4" )
+    refute.contains( testNames(testTree.scopeTwo), "it3" )
   })
 
 })
 
 describe("Eg.Mocha.Bdd",function() {
 
+  var code
   before(function() {
     var testTree = Eg.TestTree.fromExamples(tree)
     code = new Eg.Mocha.Bdd(testTree).javascript()
   })
 
   it("can generate code",function() {
-    console.log(code)
+    assert.match(code,'describe')
   })
 
 })
