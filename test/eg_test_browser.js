@@ -40,7 +40,7 @@ describe("Eg.Dom",function() {
 
   var parsed;
   before(function() {
-    parsed = new Eg.Dom($(testHtmlSource)[0]).toDsl()
+    parsed = new Eg.Dom($(testHtmlSource)[0]).asDsl()
   })
 
   it("reads top level describes",function() {
@@ -73,7 +73,7 @@ describe("Eg",function() {
   var sourceCode
   before(function() {
     var dom = $(testHtmlSource)[0]
-    var parsed = Eg.Dom.domToDsl(dom)
+    var parsed = new Eg.Dom(el,opts).asDsl()
     var testTree = Eg.TestTree.dslToTree(parsed)
     sourceCode = Eg.Mocha.Bdd.treeToJavascript(testTree)
   })
