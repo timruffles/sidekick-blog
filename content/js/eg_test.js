@@ -52,8 +52,16 @@ Eg.Ui.Annotation.prototype = {
   },
   renderResults: function() {
     var el = document.createElement("span")
-    el.innerHTML = this.passes + "" + this.failures
-    this.el.appendChild(el)
+    el.classList.add("result")
+    var passes = this.passes.length
+    var failures = this.failures.length
+    el.innerHTML = passes + " passes, " + failures + " failures"
+    prepend(el,this.el)
+    if(failures === 0 && passes > 0) {
+      this.el.classList.add("passed")
+    } else {
+      this.el.classList.add("failed")
+    }
   },
   passesAdd: function(test) {
     this.passes.push(test)
@@ -72,15 +80,24 @@ Eg.Ui.Annotation.prototype = {
   }
 }
 
+function isDslNodeOrContainsIt(node,needle) {
+  if(node.type === "it") return node === needle
+  if(node.type === "describe") return node.children.some(function(c) { return isDslNodeOrContainsIt(c,needle) })
+  return false
+}
+
 Eg.Ui.prototype = {
   results: function(results,testTree) {
     // for result
     var _this = this;
-    var byKey = testTree.source.byKey()
+    var byKey = Eg.TestTree.byKey(testTree)
     ;["passes","failures"].forEach(function(resultType) {
       results[resultType].forEach(function(test) {
         var node = byKey[test.key]
-        debugger
+        var source = node.source
+        var container = find(_this.views,function(v) {
+          return isDslNodeOrContainsIt(v.node,source)
+        })
         // annotate
         container[resultType + "Add"](test)
       })
@@ -130,18 +147,6 @@ Eg.Dom.Root.prototype = {
     return this.children.filter(function(node) {
       return node.type === "describe" || node.type === "it"
     })
-  },
-  byKey: function() {
-    var byKey = {}
-    var walker = function(node,path) {
-      if(!(node.type in {describe:1,it:1})) return
-      path = path || []
-      path = path.concat(node.name)
-      byKey[Eg.testLookupKey(path)] = node
-      if(node.children) node.children.forEach(function(c) { walker(c,path) })
-    }
-    this.children.forEach(function(c) { walker(c) })
-    return byKey
   }
 }
 
@@ -163,7 +168,7 @@ Eg.Dom.prototype = {
     return new Eg.Dom.Root({type: "describe",name: "*root*", children: children})
   }),
   getCode: function(el) {
-    return el.innerHTML.trim().replace("&gt;",">").replace("&lt;","<")
+    return el.innerHTML.trim().replace(/&gt;/g,">").replace(/&lt;/g,"<").replace(/&amp;/g,"&")
   },
   cleanAttribute: function(attr) {
     return attr.trim()
@@ -214,6 +219,22 @@ Eg.TestTree.dslToTree = function(node,root) {
     }
   })
   return root
+}
+Eg.TestTree.byKey = function(root) {
+  var byKey = {}
+  var walker = function(node,path) {
+    if(!(node.type in {describe:1,it:1})) return
+    if(path) {
+      path = path.concat(node.name)
+    } else {
+      path = []
+    }
+    byKey[Eg.testLookupKey(path)] = node
+    if(node.describes) node.describes.forEach(function(c) { walker(c,path) })
+    if(node.tests) node.tests.forEach(function(c) { walker(c,path) })
+  }
+  walker(root)
+  return byKey
 }
 
 Eg.Mocha = {}
@@ -375,6 +396,10 @@ function insertAfter(el,insertEl) {
   if(el.nextElementSibling) return el.parentElement.insertBefore(insertEl,el.nextElementSibling)
   el.parentNode.appendChild(insertEl)
 }
+function prepend(el,container) {
+  if(container.children.length === 0) return container.appendChild(el)
+  container.insertBefore(el,container.children[0])
+}
 if(!String.prototype.trim) String.prototype.trim = function() {
   return this.replace(/^\s+|\s+$/g,'')
 }
@@ -384,6 +409,21 @@ if(typeof module !== "undefined") module.exports = Eg
 
 if(typeof window !== "undefined") {
   Eg.onPage(document.body)
+}
+
+var assert = this.assert = function(t) {
+  if(!t) throw new Error("fail")
+}
+var refute = this.refute = function(t) {
+  if(t) throw new Error("fail")
+}
+assert.equal = function(a,b) { 
+  if(a.forEach) {
+    if(!b.forEach) return false
+    if(a.length !== b.length) return false
+    return a.every(function(v,i) { assert.equal(v,b[i]) })
+  }
+  assert(a === b)
 }
 
 })(this)
