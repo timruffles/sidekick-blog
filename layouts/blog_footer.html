@@ -13,6 +13,38 @@
     <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
   </div>
   <a class=sk-link href="https://www.sidekickjs.com">Write Javascript? Track your code quality with SidekickJS</a>
-  <script src="/js/vendor/mocha.js"></script>
-  <script async src="/js/eg_test.js" data-read-eg-tests></script>
+  <% if item[:has_tests] %>
+    <script>
+      var prettifierLoad = (function() {
+        var cbs = []
+        var loaded = false
+        return {
+          q: function(cb) { 
+            loaded ? cb() : cbs.push(cb) 
+          },
+          loaded: function() {
+            loaded = true
+            cbs.forEach(function(cb) { cb() }) 
+          }
+        }
+      })()
+      head.js("/js/vendor/mocha.js","/js/blog_unit.js",function() {
+        Bu.prepareForReading()
+        prettifierLoad.q(function() {
+          Bu.setPrettifier(function(el) {
+            var fixTabs = true
+            hljs.highlightBlock(el,fixTabs)
+          })
+        })
+      })
+    </script>
+  <% end %>
+  <% if item[:has_tests] || item[:has_code] %>
+    <script>
+      head.load("/highlight/styles/github.css")
+      head.js("/highlight/highlight.js",function() {
+        prettifierLoad.loaded()
+      })
+    </script>
+  <% end %>
 </div>

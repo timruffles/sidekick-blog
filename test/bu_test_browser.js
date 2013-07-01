@@ -35,12 +35,12 @@ var testHtmlSource =
   '  }' +
   '</div></div>'
 
-describe("Eg.Dom",function() {
+describe("Bu.Dom",function() {
   
 
   var parsed;
   before(function() {
-    parsed = new Eg.Dom($(testHtmlSource)[0]).asDsl()
+    parsed = new Bu.Dom($(testHtmlSource)[0]).asDsl()
   })
 
   it("reads top level describes",function() {
@@ -69,13 +69,13 @@ describe("Eg.Dom",function() {
 
 })
 
-describe("Eg",function() {
+describe("Bu",function() {
   var sourceCode
   before(function() {
     var dom = $(testHtmlSource)[0]
-    var parsed = new Eg.Dom(el,opts).asDsl()
-    var testTree = Eg.TestTree.dslToTree(parsed)
-    sourceCode = Eg.Mocha.Bdd.treeToJavascript(testTree)
+    var parsed = new Bu.Dom(el,opts).asDsl()
+    var testTree = Bu.TestTree.dslToTree(parsed)
+    sourceCode = Bu.Mocha.Bdd.treeToJavascript(testTree)
   })
 
   it("generates source",function() {

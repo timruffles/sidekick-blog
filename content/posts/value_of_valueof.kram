@@ -2,6 +2,8 @@
 title: The Value of valueOf
 created_at: 2013/06/28
 published: true
+has_tests: true
+has_code: true
 ---
 
 `valueOf` is a radically underused part of Javascript. It allows you some control over comparison of your custom object types within your application. This allows you to keep your code clean and self-explanatory, without needlessly implementing comparison yourself.
@@ -32,16 +34,24 @@ published: true
   </div>
 </div>
 
-Javascript will use the `valueOf` method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic. 
+Javascript will use the `valueOf` method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned. 
 
-<div data-it="`valueOf` is used when comparing with numbers">
+<div data-it="`valueOf` is used when object needs to be converted to a primitive">
   assert( new Node(0) == 0 )
+  assert( new Node(0) == false )
   assert( new Node(5) + 10 === 15 )
+  assert( new Node(5) + new Node(10) === 15 )
 </div>
 
-This is not the case in `if` statements, thankfully:
+This is not the case in `if` statements, or via the `!` unary operator:
 
 <div data-it="doesn't use `valueOf` when if statements implicity convert to boolean">
+  var truthy = false
+  if(new Node(0)) {
+    truthy = true
+  }
+  assert( truthy )
+
   if(!new Node(0)) {
     fail()
   }
@@ -65,7 +75,7 @@ Javascript is an object-oriented, not a message-passing language (another blog p
 
 ## Equality
 
-Intuatively from the inequality operators we'd assume that equality would work. Actually, equality for objects in both `==` and `===` is specified as being the same object. This leads to the following surpising code:
+From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, equality for objects in both `==` and `===` is specified as being the same object. This leads to the following surpising code:
 
 <div data-it="doesn't effect equaliy">
   var e = new Node(5)
@@ -93,7 +103,10 @@ Since all we can control in inequality operations is the value our objects are c
 
   var g = new Node(10)
   var h = new AnotherNode(10)
+  var i = new AnotherNode(5)
 
+  assert( h &gt;  i )
+  assert( g &gt;  i )
   refute( g &gt;  h )
   refute( g == h )
 </div>

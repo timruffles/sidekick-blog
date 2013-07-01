@@ -1,11 +1,11 @@
-Eg = require("../content/js/eg_test")
+Bu = require("../content/js/eg_test")
 
 var tree
 before(function() {
   function node(name,data,children) {
     data = data || {}
     data.content = "var a = 1 + 1;"
-    return new Eg.Dsl.Node(name,data,children)
+    return new Bu.Dsl.Node(name,data,children)
   }
 
   tree = node("descrbe",{name: "*root*"},[
@@ -25,7 +25,7 @@ before(function() {
   ])
 })
 
-describe("Eg.Tree",function() {
+describe("Bu.Tree",function() {
 
   var testTree 
 
@@ -40,7 +40,7 @@ describe("Eg.Tree",function() {
   }
 
   before(function() {
-    testTree = Eg.TestTree.dslToTree(tree)
+    testTree = Bu.TestTree.dslToTree(tree)
     forLookup(testTree)
   })
 
@@ -71,12 +71,12 @@ describe("Eg.Tree",function() {
 
 })
 
-describe("Eg.Mocha.Bdd",function() {
+describe("Bu.Mocha.Bdd",function() {
 
   var code
   before(function() {
-    var testTree = Eg.TestTree.dslToTree(tree)
-    code = new Eg.Mocha.Bdd(testTree).javascript()
+    var testTree = Bu.TestTree.dslToTree(tree)
+    code = new Bu.Mocha.Bdd(testTree).javascript()
   })
 
   it("can generate code",function() {
