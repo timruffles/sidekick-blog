@@ -6,13 +6,15 @@ has_tests: true
 has_code: true
 ---
 
-`valueOf` is a radically underused part of Javascript. It allows you some control over comparison of your custom object types within your application. This allows you to keep your code clean and self-explanatory, without needlessly implementing comparison yourself.
+`valueOf` is a radically underused part of Javascript. It gives you some control over comparison of your custom object types within your application. This allows you to keep your code short, readable and natural - especially if you use a lot of [value objects](http://c2.com/cgi/wiki?ValueObject).
 
 <script>
   function fail() {
     throw new Error("failed")
   }
 </script>
+
+Any object which has a `valueOf` function available can play. `valueOf` is simple: it should return a primitive representation of the object's value.
 
 <div data-describe="Defining valueOf on custom type">
   <div data-scoped>
@@ -34,7 +36,7 @@ has_code: true
   </div>
 </div>
 
-Javascript will use the `valueOf` method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned. 
+Javascript will use the `valueOf` method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned, or in inequalities between objects.
 
 <div data-it="`valueOf` is used when object needs to be converted to a primitive">
   assert( new Node(0) == 0 )
@@ -43,26 +45,28 @@ Javascript will use the `valueOf` method whenever an object is in a position it 
   assert( new Node(5) + new Node(10) === 15 )
 </div>
 
-This is not the case in `if` statements, or via the `!` unary operator:
+`valueOf` clearly affects the behaviour when explicitly comparing an object with a boolean - in contrast, it has no effect in implicit tests for truthiness. In `if` statements, the `!` unary operator, or anywhere else that [implicitly converts](http://www.ecma-international.org/ecma-262/5.1/#sec-9.2) to a boolean, objects are simply defined as true:
 
 <div data-it="doesn't use `valueOf` when if statements implicity convert to boolean">
-  var truthy = false
-  if(new Node(0)) {
-    truthy = true
-  }
-  assert( truthy )
+  assert( new Node(0)  )
+  refute( !new Node(0) )
 
-  if(!new Node(0)) {
-    fail()
-  }
+  var noChangeToObjectTruthiness
+  if( new Node(0) ) noChangeToObjectTruthiness = true
+  
+  assert( noChangeToObjectTruthiness )
 </div>
 
 
 ## Sorting
 
-Having a numeric value for our objects keeps sorting much cleaner, as we can simply use subtraction as with sorting numbers. This makes, for instance, code for a priority queue of nodes in a search algorithm clean and expressive.
+Having a numeric value for our objects keeps sorting much cleaner, as we can simply use subtraction - just like sorting numbers. This makes, for instance, code for a priority queue of nodes in a search algorithm clean and expressive.
 
 <div data-it="enables sorting as simple as with numbers">
+  var a = new Node(15)
+  var b = new Node(10)
+  var c = new Node(25)
+
   assert.equal(
     [a,c,b].sort(function(a,b) { return a - b }),
     [b,a,c]
@@ -71,11 +75,11 @@ Having a numeric value for our objects keeps sorting much cleaner, as we can sim
 
 ## Limitations
 
-Javascript is an object-oriented, not a message-passing language (another blog post), so comparison is a primitive operation. This leaves equality and comparison with a range of types outside our control.
+Javascript is an object-oriented, not a message-passing language (I'll write about this another time), so comparison is a primitive operation. This means we cannot control either equality comparison, or comparison with a range of types.
 
 ## Equality
 
-From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, equality for objects in both `==` and `===` is specified as being the same object. This leads to the following surpising code:
+From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, objects are only equal under both the [`==`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3) and [`===`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) operators when they are the same object. This leads to the following surpising code, where `e` is neither less, or more, than `f`, but isn't equal to it.
 
 <div data-it="doesn't effect equaliy">
   var e = new Node(5)
@@ -84,39 +88,37 @@ From the way inequality operators work with two objects having `valueOf` defined
   refute( e &gt; f )
   refute( e &lt; f )
 
-  refute( e === f )
   refute( e ==  f )
+  refute( e === f )
 </div>
 
 
 ## Comparison with different types
 
-Since all we can control in inequality operations is the value our objects are converted to, we can't control comparisons with different types of object. This means we can't model comparisons with more than one type - unless the value you return is sensibly comparable to that returned by the other type.
+Although we can control the value of our objects in comparison, we have no knowledge of the context: what we're comparing the objects to. This means we can't model comparisons with more than one type - unless you're careful to return a value that is sensibly comparable to all the types you'd like to compare it with. This can lead to absurd comparisons:
 
 <div data-it="doesn't give control over comparison with other types">
-  function AnotherNode(size) {
-    this.size = size
+  function Person(age) {
+    this.age = age
   }
-  AnotherNode.prototype.valueOf = function() {
-    return this.size
+  Person.prototype.valueOf = function() {
+    return this.age
   }
 
   var g = new Node(10)
-  var h = new AnotherNode(10)
-  var i = new AnotherNode(5)
+  var h = new Person(10)
+  var i = new Person(5)
 
-  assert( h &gt;  i )
   assert( g &gt;  i )
   refute( g &gt;  h )
-  refute( g == h )
 </div>
 
 
-In Ruby you can control exactly what happens on comparison via the [`<=>`](http://ruby-doc.org/core-2.0/Comparable.html) method, which is passed the object to compare the receiver to.
+In Ruby you can control exactly what happens on comparison via the [`<=>`](http://ruby-doc.org/core-2.0/Comparable.html) method, which is passed the object to compare. This makes it easy to allow comparisons with some objects, but throw exceptions for invalid comparisons.
 
 ## `valueOf` is ready to make your code better
 
-Use it whenever you have a value object, and make your code even more beautiful!
+Now you know what `valueOf` can and cannot do, you've got a shiny new tool to make your code even more beautiful!
 
 
 

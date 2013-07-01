@@ -70,7 +70,8 @@ Bu.Ui.Annotation.prototype = {
     this.el = el
   },
   renderResults: function() {
-    var el = document.createElement("span")
+    var el = document.createElement("a")
+    el.href = "http://github.com/timruffles/blog-unit"
     el.classList.add("result")
     var passes = this.passes.length
     var failures = this.failures.length
@@ -432,6 +433,13 @@ if(typeof window !== "undefined") {
   }
   var refute = this.refute = function(t) {
     if(t) throw new Error("fail")
+  }
+  var seen = {}
+  var run = this.run = function(k) {
+    seen[k] = true
+  }
+  var ran = this.ran = function(k) {
+    return !!seen[k]
   }
   assert.equal = function(a,b) { 
     if(a.forEach) {

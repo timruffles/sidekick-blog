@@ -1,4 +1,5 @@
 <div class=footer>
+  <a class=sk-link href="https://www.sidekickjs.com">Write Javascript? Keep it beautiful with SidekickJS</a>
   <% 
   require "cgi"
   path = if id = item[:hn_id]
@@ -12,7 +13,6 @@
     <a class=hn href='<%= url %>'>Discuss<%= item[:hn_karma] ? " (#{item[:hn_karma]})" : "" %></a>
     <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
   </div>
-  <a class=sk-link href="https://www.sidekickjs.com">Write Javascript? Track your code quality with SidekickJS</a>
   <% if item[:has_tests] %>
     <script>
       var prettifierLoad = (function() {
