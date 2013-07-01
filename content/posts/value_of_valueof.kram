@@ -79,7 +79,7 @@ Javascript is an object-oriented, not a message-passing language (I'll write abo
 
 ## Equality
 
-From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, objects are only equal under both the [`==`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3) and [`===`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) operators when they are the same object. This leads to the following surpising code, where `e` is neither less, or more, than `f`, but isn't equal to it.
+From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, objects are only equal under both the [`==`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3) and [`===`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) operators when they are the same object. This leads to the following surprising code, where `e` is neither less, or more, than `f`, but isn't equal to it.
 
 <div data-it="doesn't effect equaliy">
   var e = new Node(5)
