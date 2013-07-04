@@ -3,11 +3,13 @@ layout: blog_list
 title: SidekickJS's tech/bootstrapping blog
 ---
 
-<h1><%= @item[:title] %></h1>
+<% content_for(:title) do %>
+  <h1><span class=content><%= @item[:title] %></span></h1>
+<% end %>
 
-<% sorted_articles[0..2].each do |item| %>
+<% sorted_articles[0..20].each do |item| %>
   <div class=front_title>
     <h2><a href=<%= url_for item %>><%= item[:title] %></a></h2>
-    <span class=date><%= item[:created_at] %></span>
+    <span class=date><%= Date.parse(item[:created_at]).strftime("%d %b, '%y") %></span>
   </div>
 <% end %>

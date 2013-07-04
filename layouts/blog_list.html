@@ -3,6 +3,7 @@
 
   <%= render "blog_header" %>
 
+  <%= content_for(@item,:title) %>
   <div class=content>
     <%= yield %>
   </div>

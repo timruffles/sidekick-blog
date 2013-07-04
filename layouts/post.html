@@ -3,8 +3,8 @@
 
   <%= render "blog_header" %>
 
+  <h1><span class=content><%= item[:title] %></span></h1>
   <div class=article>
-    <h1><span class=content><%= item[:title] %></span></h1>
 
     <div class=content>
       <%= yield %>

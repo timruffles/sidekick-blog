@@ -1,7 +1,7 @@
 ---
 title: Why NaN !== NaN (and shouldn't)
 created_at: 2013/06/19
-published: true
+published: false
 ---
 
 `NaN !== NaN` for a good reason, and it's funny that lots of '[Javascript](http://net.tutsplus.com/tutorials/javascript-ajax/top-10-things-that-javascript-got-wrong/) [sucks](https://wiki.theory.org/YourLanguageSucks#Type_System) [lol](https://twitter.com/damln/status/198052578163036160)' posts highlight it as one of Javascript's bad parts.

@@ -9,52 +9,52 @@ has_code: true
 `valueOf` is a radically underused part of Javascript. It gives you some control over comparison of your custom object types within your application. This allows you to keep your code short, readable and natural - especially if you use a lot of [value objects](http://c2.com/cgi/wiki?ValueObject).
 
 <script>
-  function fail() {
-    throw new Error("failed")
-  }
+function fail() {
+  throw new Error("failed")
+}
 </script>
 
 Any object which has a `valueOf` function available can play. `valueOf` is simple: it should return a primitive representation of the object's value.
 
 <div data-describe="Defining valueOf on custom type">
   <div data-scoped>
-    function Node(weight) {
-      this.weight = weight
-    }
-    Node.prototype.valueOf = function() {
-      return this.weight
-    }
+function Node(weight) {
+  this.weight = weight
+}
+Node.prototype.valueOf = function() {
+  return this.weight
+}
 
-    var a = new Node(15)
-    var b = new Node(10)
-    var c = new Node(25)
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
   </div>
   <div data-it="allows simple comparison between instances of the type">
-    assert( a &gt; b )
-    assert( b &lt; a )
-    assert( c &gt; a  &amp;&amp; c > b )
+assert( a &gt; b )
+assert( b &lt; a )
+assert( c &gt; a  &amp;&amp; c > b )
   </div>
 </div>
 
 Javascript will use the `valueOf` method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned, or in inequalities between objects.
 
 <div data-it="`valueOf` is used when object needs to be converted to a primitive">
-  assert( new Node(0) == 0 )
-  assert( new Node(0) == false )
-  assert( new Node(5) + 10 === 15 )
-  assert( new Node(5) + new Node(10) === 15 )
+assert( new Node(0) == 0 )
+assert( new Node(0) == false )
+assert( new Node(5) + 10 === 15 )
+assert( new Node(5) + new Node(10) === 15 )
 </div>
 
 `valueOf` clearly affects the behaviour when explicitly comparing an object with a boolean - in contrast, it has no effect in implicit tests for truthiness. In `if` statements, the `!` unary operator, or anywhere else that [implicitly converts](http://www.ecma-international.org/ecma-262/5.1/#sec-9.2) to a boolean, objects are simply defined as true:
 
 <div data-it="doesn't use `valueOf` when if statements implicity convert to boolean">
-  assert( new Node(0)  )
-  refute( !new Node(0) )
+assert( new Node(0)  )
+refute( !new Node(0) )
 
-  var noChangeToObjectTruthiness
-  if( new Node(0) ) noChangeToObjectTruthiness = true
-  
-  assert( noChangeToObjectTruthiness )
+var noChangeToObjectTruthiness
+if( new Node(0) ) noChangeToObjectTruthiness = true
+
+assert( noChangeToObjectTruthiness )
 </div>
 
 
@@ -63,14 +63,14 @@ Javascript will use the `valueOf` method whenever an object is in a position it 
 Having a numeric value for our objects keeps sorting much cleaner, as we can simply use subtraction - just like sorting numbers. This makes, for instance, code for a priority queue of nodes in a search algorithm clean and expressive.
 
 <div data-it="enables sorting as simple as with numbers">
-  var a = new Node(15)
-  var b = new Node(10)
-  var c = new Node(25)
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
 
-  assert.equal(
-    [a,c,b].sort(function(a,b) { return a - b }),
-    [b,a,c]
-  )
+assert.equal(
+  [a,c,b].sort(function(a,b) { return a - b }),
+  [b,a,c]
+)
 </div>
 
 ## Limitations
@@ -82,14 +82,14 @@ Javascript is an object-oriented, not a message-passing language (I'll write abo
 From the way inequality operators work with two objects having `valueOf` defined we'd assume that equality would be similar. Actually, objects are only equal under both the [`==`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3) and [`===`](http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) operators when they are the same object. This leads to the following surprising code, where `e` is neither less, or more, than `f`, but isn't equal to it.
 
 <div data-it="doesn't effect equaliy">
-  var e = new Node(5)
-  var f = new Node(5)
+var e = new Node(5)
+var f = new Node(5)
 
-  refute( e &gt; f )
-  refute( e &lt; f )
+refute( e &gt; f )
+refute( e &lt; f )
 
-  refute( e ==  f )
-  refute( e === f )
+refute( e ==  f )
+refute( e === f )
 </div>
 
 
@@ -98,19 +98,19 @@ From the way inequality operators work with two objects having `valueOf` defined
 Although we can control the value of our objects in comparison, we have no knowledge of the context: what we're comparing the objects to. This means we can't model comparisons with more than one type - unless you're careful to return a value that is sensibly comparable to all the types you'd like to compare it with. This can lead to absurd comparisons:
 
 <div data-it="doesn't give control over comparison with other types">
-  function Person(age) {
-    this.age = age
-  }
-  Person.prototype.valueOf = function() {
-    return this.age
-  }
+function Person(age) {
+  this.age = age
+}
+Person.prototype.valueOf = function() {
+  return this.age
+}
 
-  var g = new Node(10)
-  var h = new Person(10)
-  var i = new Person(5)
+var g = new Node(10)
+var h = new Person(10)
+var i = new Person(5)
 
-  assert( g &gt;  i )
-  refute( g &gt;  h )
+assert( g &gt;  i )
+refute( g &gt;  h )
 </div>
 
 
