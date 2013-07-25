@@ -60,6 +60,7 @@ class Nanoc::RuleContext
         case item[:extension]
         when "kram"
           filter :kramdown, coderay_line_numbers: nil
+          filter :erb
         end
       end
       layout the_layout

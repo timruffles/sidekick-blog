@@ -1,0 +1,119 @@
+---
+title: Closures for privacy considered harmful
+created_at: 25/07/2013 
+published: true
+footnote_html: |
+  <li id="breaks-testability">
+    <blockquote>"JavaScript is an outstanding language for writing unit tests ... Being able to use the Properties Pattern to treat every object (and class) as a bag of properties makes the creation of mock objects a dream come true."</blockquote>
+    Steve Yegge, <a href="http://steve-yegge.blogspot.co.uk/2008/10/universal-design-pattern.html"><em>The Universal Design Pattern</em></a>
+  </li>
+  <li id="es6">
+    ES6 will probably introduce another pattern for privacy via private <code>Symbols</code>. My arguments apply equally to this new pattern, or indeed using unbypassable privacy in any language for anything other than security.
+  </li>
+---
+
+Using closures for privacy is a bad idea: hard to extend, test, tool and read.
+
+Closures are fantastic, but using them to implement Java-style private fields is a bad idea. Closures are a perfect tool for functional code: they're awful for reinventing objects or modules.
+
+First let's look at using a module defined with closures.
+
+~~~js
+
+var SomeModule = (function() {
+
+  function privateFunction() {
+  }
+  function publicFunction() {
+    privateFunction()
+  }
+
+  return {
+    publicFunction: publicFunction
+  }
+})();
+~~~
+
+We have a single public function, and an inaccessible private function implementing it.
+
+## Extension
+
+Imagine your want to slightly alter the behaviour of this module - a quick patch, a modification - all very common.
+
+No luck. Even if you only wish to change the behaviour of the public function you can't as it references the private variable.  Though you have a reference to the public function its reference to `privateFunction` is contained in a scope your redifinition cannot access:
+
+~~~js
+SomeModule.publicFunction = function() {
+  // new behaviour
+  privateFunction(); // won't work - not in scope
+}
+~~~
+
+You're stuck - it's impossible to get at local variables in a scope you're not in.
+
+Our only option is to alter the source, and now you have a patched version of the library to maintain. Quick REPL experimention where we swap out a method is impossible. [Open for extension](http://en.wikipedia.org/wiki/Open/closed_principle)? Not at all.
+
+## Testability
+
+You can't get at the private methods or variables while testing. This makes mocking the functions or setting variables to test states a non-starter.
+
+Equally you can't write unit tests for the private methods themselves. Some argue that only public APIs should be exposed to test, but this is not something to be dogmatic about. If you've got a tricky interaction between a few private functions it's very helpful to be able to test them! 
+
+This pattern has crippled a [core strength](#breaks-testability) of Javascript: the easy unit-testability inherent in prototypical object system. Being able to swap out functions as easily as assignment is laughably easy - why lose this benefit?
+
+
+## Readability
+
+Modules written in this pattern are always unique looking, even for Javascript which lacks any standardisation around definitions. There's no neat package of functionality for readers to parse - you have to read the manual, imperative construction of a type rather than a declarative definition. At least prototypical type definitions, or one of the many 'classes in JS' libraries, are easily read.
+
+## Tooling
+
+Just as humans will have to learn how to parse your code, so too will your tools. For example, an auto-completer will have a tough job working out how your hand-rolled module/object is, and how to autocomplete it. 
+
+## True privacy is a bad idea
+
+Finally the goal of [totally inaccessible private variables](#es6) is a bad one. You cannot know ahead of time how someone else will want to modify your code - perhaps for performance, future compatibility or to add functionality. It's no more secure in client-side code as anyone malicious can obviously access any part of your code via the debugger.
+
+It is only in very limited cases - for instance hosting untrusted code - that this technique for privacy can be justified.
+
+## Where closures shine
+
+Closures are great for creating functional tools like memorisation, state machines or clearing up boiler-plate:
+
+~~~js
+function after(n,cb) {
+  var calls = 0;
+  return function() {
+    if(n === calls) return;
+    calls += 1;
+    if(n === calls) cb();
+  }
+}
+var allDone = after(2,finished);
+somethingAsync(a,allDone);
+somethingElseAsync(b,allDone);
+~~~
+
+This is neat. It's atomic: a unit of functionality you either want as a whole or don't. If you want different functionality you'd just write a new function. There is no need to access its internals to unit test. It's more cleanly implemented than an OO equivalent. And it's idiomatic in a language with higher-order functions.
+
+## Alternatives
+
+To communicate a function or variable is internal, and therefore not to be relied on, simply prefix it with `_` - like [Python](http://www.python.org/dev/peps/pep-0008/#descriptive-naming-styles):
+
+~~~js
+var MyModule = {
+  publicFn: function() { this._privateFn() },
+  _privateFn: function() {}
+};
+~~~
+
+If you'd like to make it more awkward - and dangerous things like relying on implementation details should be awkward - use something invalid for `.property` access like `{"-private":x}`. This'll have to be accessed via `module["-private"]`.
+
+Now it's easy to extend - even with modules mixing in the code as we've referenced it on `this` not the module's name. It's still clear which parts are internal and therefore changable.
+
+## Closures for functions, objects for OO
+
+Closures are powerful enough to implement object orientation as anyone who has read their [SICP](http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-4.html#%_toc_%_sec_3.1.1) will know. However: just because you can implement an object system with them doesn't mean you should. Javascript has a very usable object system that the JS engines have optimised for.
+
+Embrace JS's dyanamic nature for testable, readable, idiomatic code!
+
