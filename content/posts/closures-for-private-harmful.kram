@@ -85,7 +85,7 @@ A common argument for true privacy is that it's more secure. Obviously there's n
 
 ## Where closures shine
 
-Closures are great for creating functional tools like memorisation, state machines or clearing up boiler-plate:
+Closures are great for creating functional tools like memoization, state machines or clearing up boiler-plate:
 
 ~~~js
 function after(n,cb) {
