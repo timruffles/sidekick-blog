@@ -91,6 +91,14 @@ route '/pages/*' do
   end
 end
 
+compile '/feed/' do
+  filter :erb
+end
+
+route '/feed/' do
+  '/rss'
+end
+
 compile '*' do
   if item.binary?
     # don’t filter binary items
@@ -115,5 +123,6 @@ route '*' do
     item.identifier + 'index.html'
   end
 end
+
 
 layout '*', :erb

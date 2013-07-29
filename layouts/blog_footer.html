@@ -11,6 +11,7 @@
   %>
   <div class=links>
     <a class=hn href='<%= url %>'>Discuss<%= item[:hn_karma] ? " (#{item[:hn_karma]})" : "" %></a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
     <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
   </div>
   <% if item[:has_tests] %>

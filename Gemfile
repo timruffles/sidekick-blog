@@ -18,3 +18,5 @@ gem "command_line_reporter"
 gem "pry"
 
 gem "rake"
+
+gem "builder"
