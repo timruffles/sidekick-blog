@@ -16,7 +16,7 @@ footnote_html: |
   <li>
     Thanks to <a href="https://twitter.com/philjackson">Phil Jackson</a> and <a href="https://twitter.com/ForbesLindesay">Forbes Lindsay</a> for proofing and commenting on this post.
   </li>
-  <li>Post [modified](https://github.com/timruffles/sidekick-blog/commit/e3fc31c7005963136e2312254afc1cb7c767a6ff) after published to switch order of two paragraphs, and add an explanatory sentence.</li>
+  <li>Post <a href="https://github.com/timruffles/sidekick-blog/commit/e3fc31c7005963136e2312254afc1cb7c767a6ff">modified</a> after published to switch order of two paragraphs, and add an explanatory sentence.</li>
 ---
 
 Using closures for class/module privacy is a bad idea: hard to extend, test, tool and read.
