@@ -13,6 +13,9 @@ footnote_html: |
   <li id="q-example">
     However, the way Q uses closures to hide most of the implementation of public helper-functions (e.g <code>Q.async</code>) makes them completely impossible to modify, for reasons given above.
   </li>
+  <li>
+    Thanks to <a href="https://twitter.com/philjackson">Phil Jackson</a> and <a href="https://twitter.com/ForbesLindesay">Forbes Lindsay</a> for proofing and commenting on this post.
+  </li>
 ---
 
 Using closures for class/module privacy is a bad idea: hard to extend, test, tool and read.
