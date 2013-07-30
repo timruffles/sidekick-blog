@@ -1,7 +1,10 @@
 include Nanoc::Helpers::Rendering
 include Nanoc::Helpers::Blogging
+def slug item
+  item[:slug] || string_to_slug(item[:title])
+end
 
-def slug string
+def string_to_slug string
   string.strip.downcase.gsub(/[^\w_\- ]/,"").squeeze(" ").gsub(" ","-").squeeze("-")
 end
 

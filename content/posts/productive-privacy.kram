@@ -1,0 +1,87 @@
+---
+title: Productive advisory privacy pattern in Javascript
+created_at: 13/07/30
+published: true
+slug: productive-advisory-privacy
+---
+
+
+If you agree that [privacy should be advisory](/post/enforced-privacy-is-rude/), this is a useful pattern for achieving advisory privacy in Javascript while keeping your internal code neat.
+
+## Design goals
+
+1. Easy for internal code to use
+1. Obviously private when used in external code
+1. Allows redefinition of public functions
+1. Allows redefinitions of private functions
+
+## Pattern
+
+The core idea is to export all private methods on a single object accessible on the main module.
+
+~~~javascript
+var Module = {}
+Module["-private"] = {
+  privateOne: function() {},
+  ...
+}
+~~~
+
+This is a pain to reference internally, so we can store it on a local variable inside the module/closure:
+
+~~~javascript
+var Module = {}
+var p = Module["-private"] = {}
+~~~
+
+Now internal code can access private methods with via a single character:
+
+~~~javascript
+p.somethingPrivate()
+~~~
+
+Exposing the private functions via the `Module["-private"]` property allows external code to access using an advisory syntax that makes the privacy very clear:
+
+~~~javascript
+Module["-private"].somethingPrivate()
+~~~
+
+We've achieved 1 and 2, now we want to achieve 3 & 4: allowing redefinition of public and private functions.
+
+Since all uses of private functions internally go via the `Module["-private"]` object we can simply redefine them:
+
+~~~javascript
+Module["-private"].somethingPrivate = function () {
+  // new implementation
+}
+~~~
+
+If this private method refers to other private methods we'll want to keep it easy to access them. For instance: if we're experimenting with changing a single line of a method in the REPL it's a pain to have to rewrite all the internal `p` references into `Module["-private"]`.
+
+Since we're kept a single variable name for all access to private functions, it's as simple as ensuring we define a local variable of the same name pointing to the private object:
+
+~~~javascript
+var p = Module["-private"];
+Module["-private"].somethingPrivate = function () {
+  // paste the original code, which still refer to 'p'
+  p.blah(); p.x();
+  // new code
+  p.somethingElse()
+}
+~~~
+
+Equally we can now redefine public methods in the same way, whether they refer to private methods or not. REPL experimentation abounds!
+
+~~~javascript
+var p = vo["-private"];
+
+Module.somethingPublic = function() {
+  // paste the original code, which still refer to 'p'
+  ourCrazyNewFeature();
+}
+~~~
+
+## Conclusion
+
+This pattern is easy on library authors, and implements advisory privacy that allows users to access private methods for redefinition or REPL hacking.
+

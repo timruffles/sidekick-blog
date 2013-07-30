@@ -77,7 +77,7 @@ end
 
 route '/posts/*' do
   if item[:published]
-    "/post/#{slug item[:title]}/index.html"
+    "/post/#{slug item}/index.html"
   else
     nil
   end
@@ -85,7 +85,7 @@ end
 
 route '/pages/*' do
   if item[:published]
-    "/#{slug item[:title]}/index.html"
+    "/#{slug item}/index.html"
   else
     nil
   end
