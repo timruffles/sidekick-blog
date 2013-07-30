@@ -40,7 +40,7 @@ Application code is a different situation as you can change the source - use wha
 
 ## Advisory privacy everywhere
 
-Anybody who's studied many OO languages knows that advisory privacy is common - the languages are mature and well designed, perhaps they're on to something? Smalltalk [doesn't enforce privacy](http://stackoverflow.com/a/7399889/427710). Python's creator explicitly prefers privacy as an ["advisory mechanism, not an enforcement mechanism"](https://plus.google.com/115212051037621986145/posts/7wpbQTPRWft) via the `_` convention. Ruby's `send` method can [call any `private` method](http://rubyfiddle.com/riddles/84054/2).
+Anybody who's studied many OO languages knows that advisory privacy is common - the languages are mature and well designed, perhaps they're on to something? Smalltalk [doesn't enforce privacy](http://stackoverflow.com/a/7399889/427710). Python's creator explicitly prefers privacy as an ["advisory mechanism, not an enforcement mechanism"](https://plus.google.com/115212051037621986145/posts/7wpbQTPRWft) via the `_` convention. Ruby's `send` method can [call any `private` method](http://rubyfiddle.com/riddles/84054/3).
 
 ## Happy path for Javascript privacy
 
