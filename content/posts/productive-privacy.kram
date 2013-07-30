@@ -40,6 +40,8 @@ Now internal code can access private methods with via a single character:
 p.somethingPrivate()
 ~~~
 
+## Advisory access
+
 Exposing the private functions via the `Module["-private"]` property allows external code to access using an advisory syntax that makes the privacy very clear:
 
 ~~~javascript
@@ -55,6 +57,8 @@ Module["-private"].somethingPrivate = function () {
   // new implementation
 }
 ~~~
+
+## Happy REPLing
 
 If this private method refers to other private methods we'll want to keep it easy to access them. For instance: if we're experimenting with changing a single line of a method in the REPL it's a pain to have to rewrite all the internal `p` references into `Module["-private"]`.
 
