@@ -12,7 +12,7 @@ footnote_html: |
 
 Privacy in OO is great for communication, but causes pain if it can't be bypassed. Advisory privacy achieves communication while letting your users do what they like with your software.
 
-It's rude not to let people using your code bypass privacy (it's what NSA wants, right?). It's a message that you consider them unworthy to be trusted with the internals of your code, and makes your code less fun & productive to use.
+It's rude not to let people using your code bypass privacy if they're aware of the risks (it's what NSA wants, right?). It's a message that you consider them unworthy to be trusted with the internals of your code, and makes your code less fun & productive to use.
 
 ## Privacy is communication[*](#security)
 

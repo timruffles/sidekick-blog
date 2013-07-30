@@ -50,6 +50,8 @@ Module["-private"].somethingPrivate()
 
 We've achieved 1 and 2, now we want to achieve 3 & 4: allowing redefinition of public and private functions.
 
+## Happy hacking
+
 Since all uses of private functions internally go via the `Module["-private"]` object we can simply redefine them:
 
 ~~~javascript
@@ -58,8 +60,6 @@ Module["-private"].somethingPrivate = function () {
 }
 ~~~
 
-## Happy REPLing
-
 If this private method refers to other private methods we'll want to keep it easy to access them. For instance: if we're experimenting with changing a single line of a method in the REPL it's a pain to have to rewrite all the internal `p` references into `Module["-private"]`.
 
 Since we've used a single variable for all library-internal access to private functions, it's as simple as defining a local variable 'p' pointing to the private object in scope of our redefinition:
@@ -67,7 +67,7 @@ Since we've used a single variable for all library-internal access to private fu
 ~~~javascript
 var p = Module["-private"];
 Module["-private"].somethingPrivate = function () {
-  // paste the original code, which still refer to 'p'
+  // original code, which refers to 'p'
   p.blah(); p.x();
   // new code
   p.somethingElse()
@@ -80,7 +80,7 @@ Equally we can now redefine public methods in the same way, whether they refer t
 var p = vo["-private"];
 
 Module.somethingPublic = function() {
-  // paste the original code, which still refer to 'p'
+  // original code, which refer to 'p'
   ourCrazyNewFeature();
 }
 ~~~
