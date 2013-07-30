@@ -58,7 +58,7 @@ Module["-private"].somethingPrivate = function () {
 
 If this private method refers to other private methods we'll want to keep it easy to access them. For instance: if we're experimenting with changing a single line of a method in the REPL it's a pain to have to rewrite all the internal `p` references into `Module["-private"]`.
 
-Since we're kept a single variable name for all access to private functions, it's as simple as ensuring we define a local variable of the same name pointing to the private object:
+Since we've used a single variable for all library-internal access to private functions, it's as simple as defining a local variable 'p' pointing to the private object in scope of our redefinition:
 
 ~~~javascript
 var p = Module["-private"];
