@@ -5,7 +5,7 @@ published: true
 slug: enforced-privacy-is-rude
 footnote_html: |
   <li id="security">Privacy for security is an entirely different, more complex problem, that applications running alongside untrusted code need consider.</li>
-  <li id="big-co">If you work for a "big-co" where bosses won't understand it's not your fault if someone else uses a private method, go wild.</li>
+  <li id="big-co">If you work for a "big-co" where bosses won't understand it's not your fault if someone else uses a private method, go wild with enforced privacy.</li>
 ---
 
 <p class="info">My <a href="/post/closures-for-classmodule-privacy-considered-harmful">previous post</a> prompted a good debate on HN, but a few of my points got lost. So this post restates my argument that "privacy is good, some implementations are better than others".</p>
@@ -36,7 +36,7 @@ Considering that dynamism is one of the features most Javascripters love, why us
 
 Open-source software wants to help people. Making it impossible to change the internals of software for your users' "own good" is insulting: communicate the danger, let the users decide.
 
-Application code is a different situation as you can change the source - use whatever privacy method you fancy[*](#big-co), but as I [argued previously](/post/closures-for-classmodule-privacy-considered-harmful) closure based privacy is still ugly for OO components, and makes sub-typing a chore.
+Application code is a different situation as you can change the source - use whatever privacy method you fancy[*](#big-co) - but as I [argued previously](/post/closures-for-classmodule-privacy-considered-harmful) closure based privacy is still ugly for OO components, and makes sub-typing a chore.
 
 ## Advisory privacy everywhere
 
