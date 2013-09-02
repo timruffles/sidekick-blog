@@ -3,6 +3,8 @@ title:  "Enforced privacy is rude: advise instead"
 created_at: 13/07/30
 published: true
 slug: enforced-privacy-is-rude
+hn_id: 6126886
+hn_karma: 32
 footnote_html: |
   <li id="security">Privacy for security is an entirely different, more complex problem, that applications running alongside untrusted code need consider.</li>
   <li id="big-co">If you work for a "big-co" where bosses won't understand it's not your fault if someone else uses a private method, go wild with enforced privacy.</li>

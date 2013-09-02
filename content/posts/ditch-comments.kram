@@ -1,0 +1,45 @@
+---
+title: Write punchy code - ditch the commentary
+published: true
+created_at: 2013/09/02
+---
+
+Commenting on what you're doing in code is bad for the same reason adjective-heavy prose is bad writing. It's clearer and punchier to communicate with action, not description.
+
+Great writers like Hemingway seldom use descriptive verbs for 'said' - eg 'whined'. They communicate through the action - what's actually said - rather than a commentary on it. Equally in coding you can use the language of your code to reveal intention.
+
+## Replace comments with functions
+
+The best way of replacing comments is to name a function that states your intent. For instance the following code has a long comment:
+
+~~~javascript
+/*
+* Throw error if callback is not a function 
+*/
+if(_.isFunction(callback) ? callback : this[callback]) {
+  throw new Error("Unable to find callback");
+}
+~~~
+
+which can be replace with an assertion function, without losing clarity:
+
+~~~javascript
+callback = _.isFunction(callback) ? callback : this[callback];
+assertFunction(callback,"Unable to find callback");
+~~~
+
+## Stale comments
+
+Comments are easy to ignore and can go out of date - code can't, or it will cause errors (and you have tests, right?).
+
+## Names persist
+
+Function and variable names are, obviously, present wherever they are used the code. In contrast a comment about a name is only present where it's defined. If you have something to communicate about a name, it's better to have that information wherever it's read rather than in a single place in the source where it's easily missed.
+
+## Where to comment?
+
+Comments are worth using somtimes: for instance when they explain a surprising aspect of the code, link to external-documentation, or record future work required (TODO and FIXME). They should be used to explain the surprising or the non-obivous, if there's no way your naming could do that instead.
+
+## Let's write snappy code
+
+Keep your code snappy like Hemingway prose. Ditch description, and communciate action with the right word (name) instead!

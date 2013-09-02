@@ -9,7 +9,12 @@ title: SidekickJS's tech/bootstrapping blog
 
 <% sorted_articles[0..20].each do |item| %>
   <div class=front_title>
-    <h2><a href=<%= url_for item %>><%= item[:title] %></a></h2>
+    <h2>
+      <a href=<%= url_for item %>><%= item[:title] %></a>
+    </h2>
     <span class=date><%= Date.parse(item[:created_at]).strftime("%d %b, '%y") %></span>
+    <% if item[:hn_karma] %>
+      <span class=hn_karma title="<%= item[:hn_karma] %> karma on Hacker News">(<%= item[:hn_karma] %>)</span>
+    <% end %>
   </div>
 <% end %>

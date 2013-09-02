@@ -1,6 +1,8 @@
 ---
 title: Closures for class/module privacy considered harmful
 created_at: 25/07/2013 
+hn_id: 6122018
+hn_karma: 34
 published: true
 footnote_html: |
   <li id="breaks-testability">

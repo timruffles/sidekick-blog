@@ -2,6 +2,8 @@
 @import forms
 @import eg_test
 
+$hn-color: #ff6600
+
 body
   font-size: 18px
   padding-bottom: 4rem
@@ -132,9 +134,9 @@ body
       margin: 1rem 0
       display: block
     .hn
-      background: #ff6600
+      background: $hn-color
       &:hover
-        background: lighten(#ff6600,5%)
+        background: lighten($hn-color,5%)
     .twitter
       background: #4099FF
       &:hover
@@ -147,7 +149,6 @@ body
       margin-bottom: 0
     span
       font-size: 1rem
-      padding-left: 2rem
     a
       color: inherit
       &:hover
@@ -216,3 +217,6 @@ div[data-describe], div[data-it], div[data-before], div[data-before-each], div[a
   color: #222
   border: 1px solid hsl(210, 21%, 94%)
   padding: 1rem
+
+.front_title .hn_karma
+  color: $hn-color
