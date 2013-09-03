@@ -16,7 +16,7 @@ The best way of replacing comments is to name a function that states your intent
 /*
 * Throw error if callback is not a function 
 */
-if(_.isFunction(callback) ? callback : this[callback]) {
+if(_.isFunction(callback) ? callback : this[callback])) {
   throw new Error("Unable to find callback");
 }
 ~~~
