@@ -2,9 +2,12 @@
 title: takeThis() - unite JS's APIs
 published: true
 created_at: 2013/10/18
+slug: takethis-unite-javascripts-apis
 ---
 
-I'd like to introduce the `takeThis()` function, the name of which immediately reminds me of old movies in which the hero would say, just before chinning someone, TAKE THIS!
+I'd like to introduce the `takeThis()` function, which immediately reminds me of fights in old movies:
+
+"Oh really pal, well... TAKE THIS!! *WHAM*"
 
 `takeThis()` usefully marries the two halves of JS's schizophrenic object-oriented/functional character. Functions like `join()` and `split()` live as prototype methods, which take their main argument from their call-site: `this`. This makes using them with higher-order functions, like `map()`, a pain.
 
