@@ -9,9 +9,7 @@ I'd like to introduce the `takeThis()` function, which immediately reminds me of
 
 "Oh really pal, well... TAKE THIS!! *WHAM*"
 
-`takeThis()` usefully marries the two halves of JS's schizophrenic object-oriented/functional character. Functions like `join()` and `split()` live as prototype methods, which take their main argument from their call-site: `this`. This makes using them with higher-order functions, like `map()`, a pain.
-
-This division makes a simple job like splitting all the strings in a list require an extra function literal:
+`takeThis()` usefully marries the two halves of JS's schizophrenic object-oriented/functional character. Functions like `join()` and `split()` live as prototype methods, which take their main argument from their call-site: `this`. This makes using them with higher-order functions, like `map()`, a pain. The pain is obvious when even a simple job like splitting all the strings in a list require an extra function literal:
 
 ~~~javascript
 var strings = ["a b c","d e f"];
