@@ -16,9 +16,6 @@ There are three things the author of the piece doesn't seem to know much about:
 
 To use any new language effectively you need to learn about it and read a bit of code written by people who know it. It often seems that it's terribly deficient compared to your language: most of the time though you just don't know enough about it yet.
 
-This most often results in the [X Y problem](http://meta.stackoverflow.com/a/66378). You want to do Y to achieve X, where Y is a solution you know from another language. Y isn't something the new language does, so you get frustrated and give up. Actually, you shouldn't do Y: in this language, people do Z to achieve X!
-
-
 ## JS has callable attributes
 
 > if you are not used to message-passing language the whole idea of "some attributes are callable and some are not" seems absolutely legal.
