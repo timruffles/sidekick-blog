@@ -8,7 +8,7 @@ Javascript is a small language. You know its [history](http://en.wikipedia.org/w
 
 This article was prompted by a lovely, completely hyperbolae free article about this today titled ['For modern development Javascript indeed is a shit language'](http://live.julik.nl/2013/05/javascript-is-shit).
 
-There are three things the author of the piece didn't seem to know much about:
+There are three things the author of the piece doesn't seem to know much about:
 
 1. how to write JS, as opposed to Ruby
 1. the current version(s) of JS: ES5, and ES3 in old IEs
