@@ -4,7 +4,7 @@ created_at: 2013/10/29
 published: true
 ---
 
-Javascript is a small language. You know it's [history](http://en.wikipedia.org/wiki/JavaScript#History). The intrinsic smallness of the language can be alarming when you come from a bigger language (Ruby, Java) and you need to learn idioms to do what the bigger language does for you.
+Javascript is a small language. You know its [history](http://en.wikipedia.org/wiki/JavaScript#History). The intrinsic smallness of the language can be alarming when you come from a bigger language (Ruby, Java) and you need to learn idioms to do what the bigger language does for you.
 
 This article was prompted by a lovely, completely hyperbolae free article about this today titled ['For modern development Javascript indeed is a shit language'](http://live.julik.nl/2013/05/javascript-is-shit).
 
