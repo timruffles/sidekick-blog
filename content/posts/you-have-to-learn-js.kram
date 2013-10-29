@@ -32,7 +32,7 @@ So in Ruby we have run-time indirection, in Javascript we have 'define time'. Ou
 
 #### Dynamic getters
 
-`send` is used to dynamically interact with database columns on an `ActiveRecord` object. In [Backbone](http://backbonejs.org/#Model-set) (and [Dojo](http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read) before it), we do that via defining `set()` and `get()` methods that let us control property access at run-time.
+`ActiveRecord` objects in Rails are a good example: Ruby's message intercept allows us to interpret property read/write dynamically, reflecting on database columns. In [Backbone](http://backbonejs.org/#Model-set) (and [Dojo](http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read) before it), we do that via defining `set()` and `get()` methods that similarly let us control property access at run-time.
 
 #### Mixins
 
