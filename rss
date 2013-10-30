@@ -1,0 +1,970 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>http://sidekicksrc.com/</id>
+  <title>SidekickJS's blog</title>
+  <updated>2013-10-29T00:00:00Z</updated>
+  <link rel="alternate" href="http://sidekicksrc.com/"/>
+  <link rel="self" href="http://sidekicksrc.com/rss"/>
+  <author>
+    <name>Tim Ruffles</name>
+    <uri>https://twitter.com/timruffles</uri>
+  </author>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-10-29:/post/for-modern-development-javascript-is-just-something-you-need-to-learn/</id>
+    <title type="html">For modern development, Javascript is just something you need to learn</title>
+    <published>2013-10-29T00:00:00Z</published>
+    <updated>2013-10-29T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/for-modern-development-javascript-is-just-something-you-need-to-learn/"/>
+    <content type="html">&lt;p&gt;Javascript is a small language. You know its &lt;a href="http://en.wikipedia.org/wiki/JavaScript#History"&gt;history&lt;/a&gt;. The intrinsic smallness of the language can be alarming when you come from a bigger language (Ruby, Java) and you need to learn idioms to do what the bigger language does for you.&lt;/p&gt;
+
+&lt;p&gt;This article was prompted by a lovely, completely hyperbolae free article about this today titled &lt;a href="http://live.julik.nl/2013/05/javascript-is-shit"&gt;‘For modern development Javascript indeed is a shit language’&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;There are three things the author of the piece doesn’t seem to know much about:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;how to write JS, as opposed to Ruby&lt;/li&gt;
+  &lt;li&gt;the current version(s) of JS: ES5, and ES3 in old IEs&lt;/li&gt;
+  &lt;li&gt;the next version of JS: ES6&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To use any new language effectively you need to learn about it and read a bit of code written by people who know it. It often seems that it’s terribly deficient compared to your language: most of the time though you just don’t know enough about it yet.&lt;/p&gt;
+
+&lt;h2 id="js-has-callable-attributes"&gt;JS has callable attributes&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;if you are not used to message-passing language the whole idea of “some attributes are callable and some are not” seems absolutely legal.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Message passing separates implementation from execution cleanly. Rather than an object having ‘properties’, I send a message to an object which invokes a method.  Everything then - property lookups, function calls - go via messages that can be handled differently at run time. I’ll call this ‘run time indirection’.&lt;/p&gt;
+
+&lt;p&gt;In Javascript, our objects are just a bag of properties. I can take out a property and try to call it - if it’s a function it’ll work.&lt;/p&gt;
+
+&lt;p&gt;Rather than throwing up our hands and wailing, perhaps it’s worth investigating how Javascripters a) achieve run-time indirection b) do the things run-time indirection is used for differently?&lt;/p&gt;
+
+&lt;h3 id="pre-es5-current-defensive-practice"&gt;Pre-ES5: current defensive practice&lt;/h3&gt;
+
+&lt;p&gt;So in Ruby we have run-time indirection, in Javascript we have ‘define time’. Our objects are just as dynamic - we don’t have types - but our redefinition of methods must come before the call: we can only put properties in, not intercept property access.&lt;/p&gt;
+
+&lt;h4 id="dynamic-getters"&gt;Dynamic getters&lt;/h4&gt;
+
+&lt;p&gt;&lt;code&gt;ActiveRecord&lt;/code&gt; objects in Rails are a good example: Ruby’s message intercept allows us to interpret property read/write dynamically, reflecting on database columns. In &lt;a href="http://backbonejs.org/#Model-set"&gt;Backbone&lt;/a&gt; (and &lt;a href="http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read"&gt;Dojo&lt;/a&gt; before it), we do that via defining &lt;code&gt;set()&lt;/code&gt; and &lt;code&gt;get()&lt;/code&gt; methods that similarly let us control property access at run-time.&lt;/p&gt;
+
+&lt;h4 id="mixins"&gt;Mixins&lt;/h4&gt;
+
+&lt;p&gt;Ruby’s &lt;code&gt;send&lt;/code&gt; will work with the ancestors of an object to track down the receiver. In JS, we just do our mixins earlier, via &lt;a href="http://underscorejs.org/#extend"&gt;&lt;code&gt;_.extend&lt;/code&gt;&lt;/a&gt; or similar. If we want to wrap existing methods, that’s &lt;a href="http://underscorejs.org/#wrap"&gt;easy too&lt;/a&gt;: we grab the current value, and make sure it’s called in our new version.&lt;/p&gt;
+
+&lt;h3 id="es5"&gt;ES5&lt;/h3&gt;
+
+&lt;p&gt;In the current version of JS we do have a hook for intercepting known property lookup via &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"&gt;&lt;code&gt;Object.defineProperty&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; obj = {}
+Object.defineProperty(obj,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;name&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,{
+  &lt;span style="color:#06B;font-weight:bold"&gt;get&lt;/span&gt;: &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+    &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;Proteus&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt; + Date.now()
+  }
+})
+obj.name &lt;span style="color:#777"&gt;// &amp;quot;Proteus1383048827952&amp;quot;&lt;/span&gt;
+obj.name &lt;span style="color:#777"&gt;// &amp;quot;Proteus1383048829030&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h3 id="es6"&gt;ES6&lt;/h3&gt;
+
+&lt;p&gt;Proxies will allow &lt;a href="http://wiki.ecmascript.org/doku.php?id=harmony:proxies"&gt;run-time indirection&lt;/a&gt;; unsurprisingly, as it’s their stated goal.&lt;/p&gt;
+
+&lt;h2 id="objects-are-unusable-for-stable-keys"&gt;Objects are unusable for stable keys&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;[JS] defies the premise that objects can have metadata on them &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Objects in Javascript aren’t useable as property keys by default - they’re converted into a string via their &lt;code&gt;toString()&lt;/code&gt; method when used as a property. Since we know that, it’s trivial to make their &lt;code&gt;toString()&lt;/code&gt; method return an id or hash code.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; store = {}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; bobsStuff = {&lt;span style="color:#606"&gt;stuff&lt;/span&gt;: &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;yes&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; bob = {&lt;span style="color:#606"&gt;id&lt;/span&gt;:&lt;span style="color:#00D"&gt;1&lt;/span&gt;,&lt;span style="color:#606"&gt;name&lt;/span&gt;:&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;bob&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;}
+store[bob] = bobsStuff
+Object.keys(store) &lt;span style="color:#777"&gt;// [&amp;quot;[object Object]&amp;quot;] - not very useful, not unique&lt;/span&gt;
+
+bob.&lt;span style="color:#06B;font-weight:bold"&gt;toString&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() { &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="color:#963"&gt;this&lt;/span&gt;.id }
+store[bob] = bobsStuff
+Object.keys(store) &lt;span style="color:#777"&gt;// [&amp;quot;[object Object]&amp;quot;,&amp;quot;1&amp;quot;] - great, our key system worked&lt;/span&gt;
+
+store[bob] &lt;span style="color:#777"&gt;// {stuff: &amp;quot;yes&amp;quot; }&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;More likely though, you’d define an &lt;code&gt;id&lt;/code&gt; property and a custom container. This is the approach &lt;a href="http://backbonejs.org/#Model-id"&gt;&lt;code&gt;Backbone&lt;/code&gt;&lt;/a&gt; and &lt;a href="http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read"&gt;&lt;code&gt;dojo.data&lt;/code&gt;&lt;/a&gt; etc have taken: for years in Dojo’s case…&lt;/p&gt;
+
+&lt;h3 id="es6-1"&gt;ES6&lt;/h3&gt;
+
+&lt;p&gt;In ES6 we have the &lt;a href="http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets"&gt;&lt;code&gt;Map&lt;/code&gt;&lt;/a&gt;, which gives us the ability to map objects to values by object identity.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; m = &lt;span style="color:#080;font-weight:bold"&gt;new&lt;/span&gt; Map
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; a = {}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; b = {}
+
+m.set(a,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;a&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;)
+m.set(b,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;b&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;)
+
+m.get(a) &lt;span style="color:#777"&gt;// &amp;quot;a&amp;quot;&lt;/span&gt;
+m.get(b) &lt;span style="color:#777"&gt;// &amp;quot;b&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Additionally it’s a standard API for new Mappy types, so we’ll see lots of custom maps being defined you can use.&lt;/p&gt;
+
+&lt;h2 id="objects-are-unusable-for-type-systems-since-an-object-does-not-carry-any-type-information"&gt;Objects are unusable for type systems since an object does not carry any type information.&lt;/h2&gt;
+
+&lt;p&gt;The built-in option to check an object’s ‘type’ is &lt;code&gt;instanceof&lt;/code&gt;, which looks at the function an object was created with. You’ll probably want to use your own keys though, as if you wrap the &lt;code&gt;ConstructorFunction&lt;/code&gt; below to sub-class etc it won’t work.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;a &lt;span style="color:#080;font-weight:bold"&gt;instanceof&lt;/span&gt; ConstructorFunction
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If your app actually needs introspection, it’s really very easy: just add your own keys to your types. &lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;TypeA&lt;/span&gt;() {
+}
+TypeA.prototype.type = &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;TypeA&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+
+
+&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;somethingThatUsesType&lt;/span&gt;(a) {
+  &lt;span style="color:#080;font-weight:bold"&gt;switch&lt;/span&gt;(a.type) {
+  }
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I don’t see this kind of code very often, because, for the same reason as Ruby, type sniffing is normally just for debugging. If you’re using it for something in your code it’s better to stick with duck-typing as it’s under your control, not the language’s, and it’s easier to extend and test.&lt;/p&gt;
+
+&lt;h2 id="null-everywhere"&gt;Null everywhere&lt;/h2&gt;
+
+&lt;p&gt;Attempting to access a property of a JS object that’s not defined gives you… &lt;code&gt;undefined&lt;/code&gt;. If it’s important to your program that you know about this: write some code.&lt;/p&gt;
+
+&lt;p&gt;For the last few years I’ve used a &lt;code&gt;constants&lt;/code&gt; module. It’s a function that takes an object, and returns a &lt;code&gt;constant&lt;/code&gt; function you can lookup constants on:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;constants&lt;/span&gt;(h) {
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(k) {
+    &lt;span style="color:#080;font-weight:bold"&gt;if&lt;/span&gt;(h[k] == &lt;span style="color:#069"&gt;null&lt;/span&gt;) &lt;span style="color:#080;font-weight:bold"&gt;throw&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;new&lt;/span&gt; Error(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;Undefined constant: &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt; + k);
+    &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; h[k]
+  }
+}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; myConstants = constants({&lt;span style="color:#606"&gt;A&lt;/span&gt;: &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;hello&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;})
+myConstants(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;A&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;) &lt;span style="color:#777"&gt;// hello&lt;/span&gt;
+myConstants(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;B&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;) &lt;span style="color:#777"&gt;// Error!&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you’re annoyed by how, when using objects as hashes, you get undefined on a missing key, it’s probably time to define a custom container!&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;MyMap&lt;/span&gt;() {
+}
+MyMap.prototype.&lt;span style="color:#06B;font-weight:bold"&gt;get&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(k) {
+  &lt;span style="color:#080;font-weight:bold"&gt;if&lt;/span&gt;(!&lt;span style="color:#963"&gt;this&lt;/span&gt;[k]) &lt;span style="color:#080;font-weight:bold"&gt;throw&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;new&lt;/span&gt; Error(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;Missing key: &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt; + k)
+  &lt;span style="color:#777"&gt;// ...&lt;/span&gt;
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h3 id="es6-2"&gt;ES6&lt;/h3&gt;
+
+&lt;p&gt;In ES6, and Node, you can use the &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const"&gt;&lt;code&gt;const&lt;/code&gt;&lt;/a&gt; keyword. Woohoo.&lt;/p&gt;
+
+&lt;h2 id="callback-hell"&gt;Callback hell&lt;/h2&gt;
+
+&lt;p&gt;‘Callback hell’ isn’t a problem for people who’ve written a lot of JS. They define functions with names, rather than heaps of anonymous functions, and use these to de-inline them and expose them to their unit tests. They use &lt;code&gt;bind()&lt;/code&gt;. The may use helper libraries, or tools like &lt;a href="http://nodejs.org/api/stream.html"&gt;streams&lt;/a&gt; or &lt;a href="http://wiki.commonjs.org/wiki/Promises/A"&gt;promises&lt;/a&gt;. In the browser it really is trivial in most cases - in Node, you have more async so more opportunity to get into a mess. But it doesn’t need to be hell: &lt;a href="http://www.youtube.com/watch?v=n34S_uFtGnw"&gt;I’ve spoken&lt;/a&gt; about this, as have a lot of other people.&lt;/p&gt;
+
+&lt;h3 id="es6-3"&gt;ES6&lt;/h3&gt;
+
+&lt;p&gt;ES6 is bringing [generators] which very much change the game. This has been &lt;a href="http://jlongster.com/A-Study-on-Solving-Callbacks-with-JavaScript-Generators"&gt;written&lt;/a&gt; and &lt;a href="http://www.youtube.com/watch?v=qbKWsbJ76-s"&gt;spoken&lt;/a&gt; about a lot.&lt;/p&gt;
+
+&lt;h2 id="terrible-exception-handling"&gt;Terrible exception handling&lt;/h2&gt;
+
+&lt;p&gt;JS has one of the best debuggers out there: the Webkit inspector. It’s &lt;a href="https://github.com/node-inspector/node-inspector"&gt;usable with Node.js too&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you attempt to call a property that’s not a function: you get a line-number in the error. Go to that line, and pop in a breakpoint. Debug it!&lt;/p&gt;
+
+&lt;h2 id="write-into-a-language"&gt;Write into a language&lt;/h2&gt;
+
+&lt;p&gt;If you’re frustrated with how JS (or another language) works compared to your pet language, it’s worth realising two things:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;your language features a solution to a problem, perhaps such problems are solved a different way here?&lt;/li&gt;
+  &lt;li&gt;you can reimplement your language’s features with a bit of code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I find the similiarties between dynamic languages outweigh their differences, and it’s very unlikely you could find a feature in one you couldn’t rebuild trivially in another. More restrictive languages like Java or Haskell have sharper edges when they’re not working as you’d like: dynamic languages you can simply remould.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-10-23:/post/a-few-uses-for-apply/</id>
+    <title type="html">A few uses for apply()</title>
+    <published>2013-10-23T00:00:00Z</published>
+    <updated>2013-10-23T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/a-few-uses-for-apply/"/>
+    <content type="html">&lt;p&gt;&lt;code&gt;apply()&lt;/code&gt; is most often used for building higher-order functions, but it has uses in normal, straight line coding with Javascript too.&lt;/p&gt;
+
+&lt;p&gt;I very commonly use &lt;code&gt;apply()&lt;/code&gt; to make a var-args function more useful. &lt;code&gt;Math.max&lt;/code&gt; and &lt;code&gt;Math.min&lt;/code&gt; are frequent targets. Let’s say we want to find the minimum age of our users:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; minAge = Math.min.apply(&lt;span style="color:#069"&gt;null&lt;/span&gt;,userAges)
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can generalise this to a &lt;code&gt;Math.arrayMin&lt;/code&gt;, and &lt;code&gt;arrayMax&lt;/code&gt;, rather than cofusing later readers of our code:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Math.&lt;span style="color:#06B;font-weight:bold"&gt;arrayMin&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(array) {
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; Math.min.apply(&lt;span style="color:#069"&gt;null&lt;/span&gt;,array)
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Another example might be joining a variable number of arrays together. If we have an array of arrays, we can:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; variableNumberOfArrays = [[&lt;span style="color:#00D"&gt;1&lt;/span&gt;,&lt;span style="color:#00D"&gt;2&lt;/span&gt;,&lt;span style="color:#00D"&gt;3&lt;/span&gt;],[&lt;span style="color:#00D"&gt;4&lt;/span&gt;,&lt;span style="color:#00D"&gt;5&lt;/span&gt;,&lt;span style="color:#00D"&gt;6&lt;/span&gt;]]
+[].concat.apply([],variableNumberOfArrays) &lt;span style="color:#777"&gt;// [1,2,3,4,5,6]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In case you’re wondering, this isn’t the same as flattening, we’re just performing a concatenation. So &lt;code&gt;[[[1],2,3],[4,5,6]]&lt;/code&gt; would come out &lt;code&gt;[[1],2,3,4,5,6]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Again it’s probably best to name an intention revealing function rather than scattering the slightly confusing idiom all over the place:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Array.prototype.&lt;span style="color:#06B;font-weight:bold"&gt;concatArrays&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(arrays) {
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="color:#963"&gt;this&lt;/span&gt;.concat.apply(&lt;span style="color:#963"&gt;this&lt;/span&gt;,arrays)
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So if you’re faced with a function taking a variable number of arguments, and wished you could pass an array: you can. Another job for &lt;code&gt;Function.prototype.apply()&lt;/code&gt;!&lt;/p&gt;
+
+&lt;p&gt;I’ll be sharing more JS tools and tricks, &lt;a href="http://twitter.com/sidekicksrc"&gt;follow me&lt;/a&gt; to hear about them!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-10-18:/post/takethis-unite-javascripts-apis/</id>
+    <title type="html">takeThis() - unite JS's APIs</title>
+    <published>2013-10-18T00:00:00Z</published>
+    <updated>2013-10-18T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/takethis-unite-javascripts-apis/"/>
+    <content type="html">&lt;p&gt;I’d like to introduce the &lt;code&gt;takeThis()&lt;/code&gt; function, which immediately reminds me of fights in old movies:&lt;/p&gt;
+
+&lt;p&gt;“Oh really pal, well… TAKE THIS!! &lt;em&gt;WHAM&lt;/em&gt;”&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;takeThis()&lt;/code&gt; usefully marries the two halves of JS’s schizophrenic object-oriented/functional character. Functions like &lt;code&gt;join()&lt;/code&gt; and &lt;code&gt;split()&lt;/code&gt; live as prototype methods, which take their main argument from their call-site: &lt;code&gt;this&lt;/code&gt;. This makes using them with higher-order functions, like &lt;code&gt;map()&lt;/code&gt;, a pain. The pain is obvious when even a simple job like splitting all the strings in a list require an extra function literal:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; strings = [&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;a b c&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;d e f&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;];
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; split = strings.map(&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(s) {
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; s.split(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt; &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;)
+});
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It also precludes using the methods in pipelines created via functional composition - and anywhere of the other standard functional tricks.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;takeThis()&lt;/code&gt; solves this by taking the arguments first, and returning a function that applies them when it receives the value of &lt;code&gt;this&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Function.prototype.&lt;span style="color:#06B;font-weight:bold"&gt;takeThis&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+  &lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; fn = &lt;span style="color:#963"&gt;this&lt;/span&gt;;
+  &lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; args = &lt;span style="color:#963"&gt;arguments&lt;/span&gt;;
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;(thisVal) {
+    &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; fn.apply(thisVal,args)
+  }
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here I’ve defined it on the &lt;code&gt;Function.prototype&lt;/code&gt; as I live on the edge (only in programming, I’m in bed by 11). I’m not very worried about clashes - if you are, I’d recommend &lt;a href="http://agavejs.org/"&gt;agave.js&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; lists = [
+  [&lt;span style="color:#00D"&gt;1&lt;/span&gt;,&lt;span style="color:#00D"&gt;2&lt;/span&gt;,&lt;span style="color:#00D"&gt;3&lt;/span&gt;],
+  [&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;a&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;b&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;c&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;]
+];
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; lyrics = [
+  &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;five to one baby&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,
+  &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;scaring the nation with their&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+];
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; needTrimming = [
+  &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt; i have lots of whitespace &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,
+  &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt; so do i      &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+];
+
+lists.map([].join.takeThis(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;,&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;));
+lyrics.map(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;.split.takeThis(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt; &lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;));
+needTrimming.map(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;.trim.takeThis());
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As you can see, we can now easily use the prototype methods like any other function!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://jsbin.com/UhAgIJo/1/edit?js,console"&gt;See it in action&lt;/a&gt;. I’ll be sharing more JS tools and tricks, &lt;a href="http://twitter.com/sidekicksrc"&gt;follow me&lt;/a&gt; to hear about them!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-09-02:/post/write-punchy-code-ditch-the-commentary/</id>
+    <title type="html">Write punchy code - ditch the commentary</title>
+    <published>2013-09-02T00:00:00Z</published>
+    <updated>2013-09-02T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/write-punchy-code-ditch-the-commentary/"/>
+    <content type="html">&lt;p&gt;Commenting on what you’re doing in code is bad for the same reason adjective-heavy prose is bad writing. It’s clearer and punchier to communicate with action, not description.&lt;/p&gt;
+
+&lt;p&gt;Great writers like Hemingway seldom use descriptive verbs for ‘said’ - eg ‘whined’. They communicate through the action - what’s actually said - rather than a commentary on it. Equally in coding you can use the language of your code to reveal intention.&lt;/p&gt;
+
+&lt;h2 id="replace-comments-with-functions"&gt;Replace comments with functions&lt;/h2&gt;
+
+&lt;p&gt;The best way of replacing comments is to name a function that states your intent. For instance the following code has a long comment:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#777"&gt;/*
+* Throw error if callback is not a function 
+*/&lt;/span&gt;
+&lt;span style="color:#080;font-weight:bold"&gt;if&lt;/span&gt;(_.isFunction(callback) ? callback : &lt;span style="color:#963"&gt;this&lt;/span&gt;[callback])) {
+  &lt;span style="color:#080;font-weight:bold"&gt;throw&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;new&lt;/span&gt; Error(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;Unable to find callback&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;);
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;which can be replace with an assertion function, without losing clarity:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;callback = _.isFunction(callback) ? callback : &lt;span style="color:#963"&gt;this&lt;/span&gt;[callback];
+assertFunction(callback,&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;Unable to find callback&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id="stale-comments"&gt;Stale comments&lt;/h2&gt;
+
+&lt;p&gt;Comments are easy to ignore and can go out of date - code can’t, or it will cause errors (and you have tests, right?).&lt;/p&gt;
+
+&lt;h2 id="names-persist"&gt;Names persist&lt;/h2&gt;
+
+&lt;p&gt;Function and variable names are, obviously, present wherever they are used the code. In contrast a comment about a name is only present where it’s defined. If you have something to communicate about a name, it’s better to have that information wherever it’s read rather than in a single place in the source where it’s easily missed.&lt;/p&gt;
+
+&lt;h2 id="where-to-comment"&gt;Where to comment?&lt;/h2&gt;
+
+&lt;p&gt;Comments are worth using somtimes: for instance when they explain a surprising aspect of the code, link to external-documentation, or record future work required (TODO and FIXME). They should be used to explain the surprising or the non-obivous, if there’s no way your naming could do that instead.&lt;/p&gt;
+
+&lt;h2 id="lets-write-snappy-code"&gt;Let’s write snappy code&lt;/h2&gt;
+
+&lt;p&gt;Keep your code snappy like Hemingway prose. Ditch description, and communciate action with the right word (name) instead!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-07-30:/post/productive-advisory-privacy/</id>
+    <title type="html">Productive advisory privacy pattern in Javascript</title>
+    <published>2013-07-30T00:00:00Z</published>
+    <updated>2013-07-30T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/productive-advisory-privacy/"/>
+    <content type="html">&lt;p&gt;If you agree that &lt;a href="/post/enforced-privacy-is-rude/"&gt;privacy should be advisory&lt;/a&gt;, this is a useful pattern for achieving advisory privacy in Javascript while keeping your internal code neat.&lt;/p&gt;
+
+&lt;h2 id="design-goals"&gt;Design goals&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Easy for internal code to use&lt;/li&gt;
+  &lt;li&gt;Obviously private when used in external code&lt;/li&gt;
+  &lt;li&gt;Allows redefinition of public functions&lt;/li&gt;
+  &lt;li&gt;Allows redefinitions of private functions&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id="pattern"&gt;Pattern&lt;/h2&gt;
+
+&lt;p&gt;The core idea is to export all private methods on a single object accessible on the main module.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; Module = {}
+Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;] = {
+  &lt;span style="color:#06B;font-weight:bold"&gt;privateOne&lt;/span&gt;: &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {},
+  ...
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is a pain to reference internally, so we can store it on a local variable inside the module/closure:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; Module = {}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; p = Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;] = {}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now internal code can access private methods with via a single character:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;p.somethingPrivate()
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id="advisory-access"&gt;Advisory access&lt;/h2&gt;
+
+&lt;p&gt;Exposing the private functions via the &lt;code&gt;Module["-private"]&lt;/code&gt; property allows external code to access using an advisory syntax that makes the privacy very clear:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;].somethingPrivate()
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ve achieved 1 and 2, now we want to achieve 3 &amp;amp; 4: allowing redefinition of public and private functions.&lt;/p&gt;
+
+&lt;h2 id="happy-hacking"&gt;Happy hacking&lt;/h2&gt;
+
+&lt;p&gt;Since all uses of private functions internally go via the &lt;code&gt;Module["-private"]&lt;/code&gt; object we can simply redefine them:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;].&lt;span style="color:#06B;font-weight:bold"&gt;somethingPrivate&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; () {
+  &lt;span style="color:#777"&gt;// new implementation&lt;/span&gt;
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If this private method refers to other private methods we’ll want to keep it easy to access them. For instance: if we’re experimenting with changing a single line of a method in the REPL it’s a pain to have to rewrite all the internal &lt;code&gt;p&lt;/code&gt; references into &lt;code&gt;Module["-private"]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Since we’ve used a single variable for all library-internal access to private functions, it’s as simple as defining a local variable ‘p’ pointing to the private object in scope of our redefinition:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; p = Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;];
+Module[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;].&lt;span style="color:#06B;font-weight:bold"&gt;somethingPrivate&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; () {
+  &lt;span style="color:#777"&gt;// original code, which refers to 'p'&lt;/span&gt;
+  p.blah(); p.x();
+  &lt;span style="color:#777"&gt;// new code&lt;/span&gt;
+  p.somethingElse()
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Equally we can now redefine public methods in the same way, whether they refer to private methods or not. REPL experimentation abounds!&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; p = vo[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-private&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;];
+
+Module.&lt;span style="color:#06B;font-weight:bold"&gt;somethingPublic&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+  &lt;span style="color:#777"&gt;// original code, which refer to 'p'&lt;/span&gt;
+  ourCrazyNewFeature();
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;This pattern is easy on library authors, and implements advisory privacy that allows users to access private methods for redefinition or REPL hacking.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-07-30:/post/enforced-privacy-is-rude/</id>
+    <title type="html">Enforced privacy is rude: advise instead</title>
+    <published>2013-07-30T00:00:00Z</published>
+    <updated>2013-07-30T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/enforced-privacy-is-rude/"/>
+    <content type="html">&lt;p class="info"&gt;My &lt;a href="/post/closures-for-classmodule-privacy-considered-harmful"&gt;previous post&lt;/a&gt; prompted a good debate on HN, but a few of my points got lost. So this post restates my argument that "privacy is good, some implementations are better than others".&lt;/p&gt;
+
+&lt;p&gt;Privacy in OO is great for communication, but causes pain if it can’t be bypassed. Advisory privacy achieves communication while letting your users do what they like with your software.&lt;/p&gt;
+
+&lt;p&gt;It’s rude not to let people using your code bypass privacy if they’re aware of the risks (it’s what NSA wants, right?). It’s a message that you consider them unworthy to be trusted with the internals of your code, and makes your code less fun &amp;amp; productive to use.&lt;/p&gt;
+
+&lt;h2 id="privacy-is-communicationsecurity"&gt;Privacy is communication&lt;a href="#security"&gt;*&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Making something private says to your users “this is internal, and I will change it at will, do not rely on it”.&lt;/p&gt;
+
+&lt;p&gt;This helps your users avoid being burned when you update the library. Equally you can change the internal implementation without affecting the public API.&lt;/p&gt;
+
+&lt;h2 id="advisory-privacy-has-benefits-enforced-privacy-has-harms"&gt;Advisory privacy has benefits; enforced privacy has harms&lt;/h2&gt;
+
+&lt;p&gt;Whether an implementation of privacy is enforced or merely advisory is completely distinct from its merits for communicating danger of change. &lt;/p&gt;
+
+&lt;p&gt;Software which uses enforced privacy is less fun &amp;amp; productive because:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;You can’t hack around in a REPL, experimenting with new implementations that require access to private variables&lt;/li&gt;
+  &lt;li&gt;You can’t tactically monkey-patch. It’s a lot quicker than creating a fork, especially if you have back-port patches if your patch is not something that’s going to be merged&lt;/li&gt;
+  &lt;li&gt;Changing private functions can be useful in testing&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Considering that dynamism is one of the features most Javascripters love, why use an idiom that is so anti-dynamic?&lt;/p&gt;
+
+&lt;h2 id="treat-your-users-like-adults"&gt;Treat your users like adults&lt;/h2&gt;
+
+&lt;p&gt;Open-source software wants to help people. Making it impossible to change the internals of software for your users’ “own good” is insulting: communicate the danger, let the users decide.&lt;/p&gt;
+
+&lt;p&gt;Application code is a different situation as you can change the source - use whatever privacy method you fancy&lt;a href="#big-co"&gt;*&lt;/a&gt; - but as I &lt;a href="/post/closures-for-classmodule-privacy-considered-harmful"&gt;argued previously&lt;/a&gt; closure based privacy is still ugly for OO components, and makes sub-typing a chore.&lt;/p&gt;
+
+&lt;h2 id="advisory-privacy-everywhere"&gt;Advisory privacy everywhere&lt;/h2&gt;
+
+&lt;p&gt;Anybody who’s studied many OO languages knows that advisory privacy is common - the languages are mature and well designed, perhaps they’re on to something? Smalltalk &lt;a href="http://stackoverflow.com/a/7399889/427710"&gt;doesn’t enforce privacy&lt;/a&gt;. Python’s creator explicitly prefers privacy as an &lt;a href="https://plus.google.com/115212051037621986145/posts/7wpbQTPRWft"&gt;“advisory mechanism, not an enforcement mechanism”&lt;/a&gt; via the &lt;code&gt;_&lt;/code&gt; convention. Ruby’s &lt;code&gt;send&lt;/code&gt; method can &lt;a href="http://rubyfiddle.com/riddles/84054/3"&gt;call any &lt;code&gt;private&lt;/code&gt; method&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id="happy-path-for-javascript-privacy"&gt;Happy path for Javascript privacy&lt;/h2&gt;
+
+&lt;p&gt;In Javascript, I’d suggest implementing advisory privacy via the &lt;code&gt;_&lt;/code&gt; prefix as it’s a well-known convention. To make it even clearer to users they’re doing a ‘naughty’ thing with your code you could prefix things with &lt;code&gt;-&lt;/code&gt; so they have to use the longer brackets/string notation:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; MyModule = {
+&lt;span style="color:#606"&gt;&lt;span style="color:#404"&gt;&amp;quot;&lt;/span&gt;&lt;span&gt;-doTheThing&lt;/span&gt;&lt;span style="color:#404"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;: &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {}
+}
+MyModule[&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;-doTheThing&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;]() &lt;span style="color:#777"&gt;// dodgy things should look dodgy&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I’ve written up a complete example of advisory &lt;a href="/post/productive-advisory-privacy/"&gt;privacy in Javascript&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;Advisory privacy communicates danger to your users while treating them as adults. Don’t deny them the productivity and fun of hacking about with the internals. In Javascript that means avoiding closure-based privacy for modules and classes.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-07-25:/post/closures-for-classmodule-privacy-considered-harmful/</id>
+    <title type="html">Closures for class/module privacy considered harmful</title>
+    <published>2013-07-25T00:00:00Z</published>
+    <updated>2013-07-25T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/closures-for-classmodule-privacy-considered-harmful/"/>
+    <content type="html">&lt;p&gt;Using closures for class/module privacy is a bad idea: hard to extend, test, tool and read.&lt;/p&gt;
+
+&lt;p&gt;Closures are a fantastic tool when used for the right things. They’re perfect for functional code but they’re awful for reinventing classes or modules.&lt;/p&gt;
+
+&lt;p&gt;To consider why, let’s look at a module using a closure for privacy:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; SomeModule = (&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+
+  &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;privateFunction&lt;/span&gt;() {
+  }
+  &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;publicFunction&lt;/span&gt;() {
+    privateFunction()
+  }
+
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; {
+    &lt;span style="color:#606"&gt;publicFunction&lt;/span&gt;: publicFunction
+  }
+
+})()
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We have a single public function, and an inaccessible private function implementing it.&lt;/p&gt;
+
+&lt;h2 id="extension"&gt;Extension&lt;/h2&gt;
+
+&lt;p&gt;Imagine your want to slightly alter the behaviour of this module - a quick patch, a modification - all very common.&lt;/p&gt;
+
+&lt;p&gt;No luck. Even if you only wish to change the behaviour of the public function you can’t as it references the private variable.  Though you have a reference to the public function its reference to &lt;code&gt;privateFunction&lt;/code&gt; is contained in a scope your redefinition cannot access:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;SomeModule.&lt;span style="color:#06B;font-weight:bold"&gt;publicFunction&lt;/span&gt; = &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+  &lt;span style="color:#777"&gt;// new behaviour&lt;/span&gt;
+  privateFunction(); &lt;span style="color:#777"&gt;// won't work - not in scope&lt;/span&gt;
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You’re stuck - it’s impossible to get at local variables in a scope you’re not in.&lt;/p&gt;
+
+&lt;p&gt;Our only option is to alter the source, and now you have a patched version of the library to maintain. Quick REPL experimentation where we swap out a method is impossible. This also completely rules out inheritance to sub-type a constructor. &lt;a href="http://en.wikipedia.org/wiki/Open/closed_principle"&gt;Open for extension&lt;/a&gt;? Not at all.&lt;/p&gt;
+
+&lt;h2 id="testability"&gt;Testability&lt;/h2&gt;
+
+&lt;p&gt;You can’t get at the private methods or variables while testing. This makes mocking the functions or setting variables to test states a non-starter.&lt;/p&gt;
+
+&lt;p&gt;Equally you can’t write unit tests for the private methods themselves. Some argue that only public APIs should be exposed to test, but this is not something to be dogmatic about. If you’ve got a tricky interaction between a few private functions it’s very helpful to be able to test them! &lt;/p&gt;
+
+&lt;p&gt;This pattern has crippled a &lt;a href="#breaks-testability"&gt;core strength&lt;/a&gt; of Javascript: the easy unit-testability inherent in prototypical object system. Being able to swap out functions as easily as overwriting it is laughably easy compared to the gymnastics in languages with classical inheritance - why lose this benefit?&lt;/p&gt;
+
+&lt;h2 id="readability"&gt;Readability&lt;/h2&gt;
+
+&lt;p&gt;Modules written in this pattern are always unique looking, even for Javascript which lacks any standardisation around definitions. There’s no neat package of functionality for readers to parse - you have to read the manual, imperative construction of a type rather than a declarative definition. At least prototypical type definitions, or one of the many ‘classes in JS’ libraries, are easily read.&lt;/p&gt;
+
+&lt;h2 id="tooling"&gt;Tooling&lt;/h2&gt;
+
+&lt;p&gt;Just as humans will have to learn how to parse your code, so too will your tools. For example, an auto-completer will have a tough job working out what your hand-rolled module/class is, and how to autocomplete it. &lt;/p&gt;
+
+&lt;h2 id="true-privacy-is-a-bad-idea-in-oo"&gt;True privacy is a bad idea in OO&lt;/h2&gt;
+
+&lt;p&gt;The goal of totally inaccessible private variables&lt;a href="#es6"&gt;*&lt;/a&gt; is a bad one. You cannot know ahead of time how someone else will want to modify your code - perhaps for performance, future compatibility or to add functionality.&lt;/p&gt;
+
+&lt;p&gt;A common argument for true privacy is that it’s more secure. Obviously there’s no real security in client-side code as anyone malicious can access any part of your code via the debugger. It is only in very limited cases - for instance hosting untrusted code - that this justification for privacy holds.&lt;/p&gt;
+
+&lt;h2 id="alternatives"&gt;Alternatives&lt;/h2&gt;
+
+&lt;p&gt;The ideal is a way to communicate that something is private and not to be relied on without preventing unforeseen modification by your code’s users. One way is simply to prefix it with &lt;code&gt;_&lt;/code&gt; - like &lt;a href="http://www.python.org/dev/peps/pep-0008/#descriptive-naming-styles"&gt;Python&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; MyModule = {
+  &lt;span style="color:#06B;font-weight:bold"&gt;publicFn&lt;/span&gt;: &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() { &lt;span style="color:#963"&gt;this&lt;/span&gt;._privateFn() },
+  &lt;span style="color:#06B;font-weight:bold"&gt;_privateFn&lt;/span&gt;: &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {}
+};
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you’d like to make it more awkward - and dangerous things like relying on implementation details should be awkward - use something invalid for &lt;code&gt;.property&lt;/code&gt; access like &lt;code&gt;{"-private":x}&lt;/code&gt;. This’ll have to be accessed via &lt;code&gt;module["-private"]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now it’s easy to extend, test and tool - even with modules mixing in the code as we’ve referenced it on &lt;code&gt;this&lt;/code&gt; not the module’s name. It’s still clear which parts are internal.&lt;/p&gt;
+
+&lt;h2 id="where-closures-shine"&gt;Where closures shine&lt;/h2&gt;
+
+&lt;p&gt;Closures are great for creating functional tools like memoization, state machines or clearing up boiler-plate:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;&lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt; &lt;span style="color:#06B;font-weight:bold"&gt;after&lt;/span&gt;(n,cb) {
+  &lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; calls = &lt;span style="color:#00D"&gt;0&lt;/span&gt;;
+  &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;function&lt;/span&gt;() {
+    &lt;span style="color:#080;font-weight:bold"&gt;if&lt;/span&gt;(n === calls) &lt;span style="color:#080;font-weight:bold"&gt;return&lt;/span&gt;;
+    calls += &lt;span style="color:#00D"&gt;1&lt;/span&gt;;
+    &lt;span style="color:#080;font-weight:bold"&gt;if&lt;/span&gt;(n === calls) cb();
+  }
+}
+&lt;span style="color:#080;font-weight:bold"&gt;var&lt;/span&gt; allDone = after(&lt;span style="color:#00D"&gt;2&lt;/span&gt;,finished);
+somethingAsync(a,allDone);
+somethingElseAsync(b,allDone);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is neat. It’s atomic: a unit of functionality you either want as a whole or don’t. If you want different functionality you’d just write a new function. There is no need to access its internals to unit test. It’s more cleanly implemented than an OO equivalent. And it’s idiomatic in a language with higher-order functions.&lt;/p&gt;
+
+&lt;p&gt;There are lots of great examples of closure-based privacy to create functional tools: e.g &lt;a href="https://github.com/jashkenas/underscore/blob/7ebf046f8831d7c7a85a957fa264c9b20184249d/underscore.js#L650"&gt;underscore.js&lt;/a&gt;, &lt;a href="https://github.com/kriskowal/q/blob/424dbd1f8c4a6a40a4b2c341598955b3880bfe79/q.js#L493"&gt;Promises&lt;/a&gt;&lt;a href="#q-example"&gt;*&lt;/a&gt; or for removing boiler-plate in &lt;a href="http://phrogz.net/fewer-lambdas-in-d3-js"&gt;D3&lt;/a&gt;. &lt;/p&gt;
+
+&lt;h2 id="closures-for-functions-objects-for-oo"&gt;Closures for functions, objects for OO&lt;/h2&gt;
+
+&lt;p&gt;Closures are powerful enough to implement object-orientation as anyone who has read their &lt;a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-4.html#%_toc_%_sec_3.1.1"&gt;SICP&lt;/a&gt; will know. However: just because you can implement modules and classes with them doesn’t mean you should. Javascript has a very usable object system that the JS engines have optimised for.&lt;/p&gt;
+
+&lt;p&gt;Embrace JS’s dynamic nature for testable, readable, idiomatic code!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-07-06:/post/nan-nan-you-wouldnt-want-it-any-other-way/</id>
+    <title type="html">NaN !== NaN: you wouldn't want it any other way</title>
+    <published>2013-07-06T00:00:00Z</published>
+    <updated>2013-07-06T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/nan-nan-you-wouldnt-want-it-any-other-way/"/>
+    <content type="html">&lt;p&gt;&lt;code&gt;NaN !== NaN&lt;/code&gt; for a good reason. It’s funny it’s considered a ‘bad part’ in lots of ‘&lt;a href="http://net.tutsplus.com/tutorials/javascript-ajax/top-10-things-that-javascript-got-wrong/"&gt;Javascript&lt;/a&gt; &lt;a href="https://wiki.theory.org/YourLanguageSucks#Type_System"&gt;sucks&lt;/a&gt; &lt;a href="https://twitter.com/damln/status/198052578163036160"&gt;lol&lt;/a&gt;’ posts as it’s exactly the same in &lt;a href="http://stackoverflow.com/questions/8819738/why-does-double-nan-double-nan-return-false"&gt;Java&lt;/a&gt;, &lt;a href="http://stackoverflow.com/a/944712/427710"&gt;Python&lt;/a&gt; and &lt;a href="http://msdn.microsoft.com/en-us/library/system.double.nan.aspx#remarksToggle"&gt;.NET&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;NaN&lt;/code&gt; is the placeholder answer to questions that are not mathematically sensible . Just like there’s no sensible answer to “what is the weight of the verb ‘laugh’?”, there are numerical questions we can’t give a good answer to:&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Number(&lt;span style="color:#069"&gt;undefined&lt;/span&gt;) &lt;span style="color:#777"&gt;// NaN&lt;/span&gt;
+&lt;span style="color:#00D"&gt;0&lt;/span&gt; / &lt;span style="color:#00D"&gt;0&lt;/span&gt; &lt;span style="color:#777"&gt;// NaN&lt;/span&gt;
+Math.log(-&lt;span style="color:#00D"&gt;1&lt;/span&gt;) &lt;span style="color:#777"&gt;// NaN&lt;/span&gt;
+Math.acos(&lt;span style="color:#00D"&gt;2&lt;/span&gt;) &lt;span style="color:#777"&gt;// NaN&lt;/span&gt;
+parseInt(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;I hate maths, can we just use words?&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;) &lt;span style="color:#777"&gt;// NaN&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Since &lt;code&gt;NaN&lt;/code&gt; is given as the same “that’s a dumb question” answer to all dumb questions, if it were equal to itself we’d get some strange behaviour. Would anyone prefer the following equality tests to pass?&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;Math.log(-&lt;span style="color:#00D"&gt;1&lt;/span&gt;) === parseInt(&lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;oh want a number? one&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;)
+&lt;span style="color:#00D"&gt;0&lt;/span&gt; / &lt;span style="color:#00D"&gt;0&lt;/span&gt; === Math.acos(&lt;span style="color:#00D"&gt;2&lt;/span&gt;)
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Commonly, the next thing after bemoaning this ‘problem’ is to question how we can identify &lt;code&gt;NaN&lt;/code&gt; values if we &lt;code&gt;NaN !== NaN&lt;/code&gt;. Well: Javascript has contained the global &lt;code&gt;isNaN()&lt;/code&gt; function from version one.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;isNaN()&lt;/code&gt; can be tricky thanks to implicit coercion on being passed strings or literals. However, when using &lt;code&gt;isNaN()&lt;/code&gt; that’s usually fine as you’re expecting a numeric. If you’ve somehow got code that could either be a string or a number (yuk) you can shim it with &lt;code&gt;function isNaN(x) { return x !== x }&lt;/code&gt;, or wait for the &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN"&gt;ES6 version&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;It’s valid to argue that throwing an exception would be a neater and more helpful alternative: e.g Ruby throws the exception &lt;code&gt;Numerical argument is out of domain&lt;/code&gt; for &lt;code&gt;log(-1)&lt;/code&gt;. This makes it clear what’s gone wrong, and will stop execution rather than letting &lt;code&gt;NaN&lt;/code&gt; be passed around. However, &lt;code&gt;NaN&lt;/code&gt; is specified by the &lt;a href="https://en.wikipedia.org/wiki/IEEE_floating_point"&gt;standard&lt;/a&gt; &lt;a href="http://www.ecma-international.org/ecma-262/5.1/#sec-4.3.23"&gt;JS uses&lt;/a&gt; for floating point arithmetic and therefore ‘NaN’ is consistently used instead of exceptions in numerical operations.&lt;/p&gt;
+
+&lt;p&gt;Javascript has flaws, but the ‘WAT’ meme has lead to some innocent ‘good parts’ being speciously condemned along with them.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-06-28:/post/the-value-of-valueof/</id>
+    <title type="html">The Value of valueOf</title>
+    <published>2013-06-28T00:00:00Z</published>
+    <updated>2013-06-28T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/the-value-of-valueof/"/>
+    <content type="html">&lt;p&gt;&lt;code&gt;valueOf&lt;/code&gt; is a radically underused part of Javascript. It gives you some control over comparison of your custom object types within your application. This allows you to keep your code short, readable and natural - especially if you use a lot of &lt;a href="http://c2.com/cgi/wiki?ValueObject"&gt;value objects&lt;/a&gt;.&lt;/p&gt;
+
+&lt;script&gt;
+function fail() {
+  throw new Error("failed")
+}
+&lt;/script&gt;
+
+&lt;p&gt;Any object which has a &lt;code&gt;valueOf&lt;/code&gt; function available can play. &lt;code&gt;valueOf&lt;/code&gt; is simple: it should return a primitive representation of the object’s value.&lt;/p&gt;
+
+&lt;div data-describe="Defining valueOf on custom type"&gt;
+  &lt;div data-scoped=""&gt;
+function Node(weight) {
+  this.weight = weight
+}
+Node.prototype.valueOf = function() {
+  return this.weight
+}
+
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
+  &lt;/div&gt;
+  &lt;div data-it="allows simple comparison between instances of the type"&gt;
+assert( a &amp;gt; b )
+assert( b &amp;lt; a )
+assert( c &amp;gt; a  &amp;amp;&amp;amp; c &amp;gt; b )
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Javascript will use the &lt;code&gt;valueOf&lt;/code&gt; method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned, or in inequalities between objects.&lt;/p&gt;
+
+&lt;div data-it="`valueOf` is used when object needs to be converted to a primitive"&gt;
+assert( new Node(0) == 0 )
+assert( new Node(0) == false )
+assert( new Node(5) + 10 === 15 )
+assert( new Node(5) + new Node(10) === 15 )
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;valueOf&lt;/code&gt; clearly affects the behaviour when explicitly comparing an object with a boolean - in contrast, it has no effect in implicit tests for truthiness. In &lt;code&gt;if&lt;/code&gt; statements, the &lt;code&gt;!&lt;/code&gt; unary operator, or anywhere else that &lt;a href="http://www.ecma-international.org/ecma-262/5.1/#sec-9.2"&gt;implicitly converts&lt;/a&gt; to a boolean, objects are simply defined as true:&lt;/p&gt;
+
+&lt;div data-it="doesn't use `valueOf` when if statements implicity convert to boolean"&gt;
+assert( new Node(0)  )
+refute( !new Node(0) )
+
+var noChangeToObjectTruthiness
+if( new Node(0) ) noChangeToObjectTruthiness = true
+
+assert( noChangeToObjectTruthiness )
+&lt;/div&gt;
+
+&lt;h2 id="sorting"&gt;Sorting&lt;/h2&gt;
+
+&lt;p&gt;Having a numeric value for our objects keeps sorting much cleaner, as we can simply use subtraction - just like sorting numbers. This makes, for instance, code for a priority queue of nodes in a search algorithm clean and expressive.&lt;/p&gt;
+
+&lt;div data-it="enables sorting as simple as with numbers"&gt;
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
+
+assert.equal(
+  [a,c,b].sort(function(a,b) { return a - b }),
+  [b,a,c]
+)
+&lt;/div&gt;
+
+&lt;h2 id="limitations"&gt;Limitations&lt;/h2&gt;
+
+&lt;p&gt;Javascript is an object-oriented, not a message-passing language (I’ll write about this another time), so comparison is a primitive operation. This means we cannot control either equality comparison, or comparison with a range of types.&lt;/p&gt;
+
+&lt;h2 id="equality"&gt;Equality&lt;/h2&gt;
+
+&lt;p&gt;From the way inequality operators work with two objects having &lt;code&gt;valueOf&lt;/code&gt; defined we’d assume that equality would be similar. Actually, objects are only equal under both the &lt;a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3"&gt;&lt;code&gt;==&lt;/code&gt;&lt;/a&gt; and &lt;a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6"&gt;&lt;code&gt;===&lt;/code&gt;&lt;/a&gt; operators when they are the same object. This leads to the following surprising code, where &lt;code&gt;e&lt;/code&gt; is neither less, or more, than &lt;code&gt;f&lt;/code&gt;, but isn’t equal to it.&lt;/p&gt;
+
+&lt;div data-it="doesn't effect equaliy"&gt;
+var e = new Node(5)
+var f = new Node(5)
+
+refute( e &amp;gt; f )
+refute( e &amp;lt; f )
+
+refute( e ==  f )
+refute( e === f )
+&lt;/div&gt;
+
+&lt;h2 id="comparison-with-different-types"&gt;Comparison with different types&lt;/h2&gt;
+
+&lt;p&gt;Although we can control the value of our objects in comparison, we have no knowledge of the context: what we’re comparing the objects to. This means we can’t model comparisons with more than one type - unless you’re careful to return a value that is sensibly comparable to all the types you’d like to compare it with. This can lead to absurd comparisons:&lt;/p&gt;
+
+&lt;div data-it="doesn't give control over comparison with other types"&gt;
+function Person(age) {
+  this.age = age
+}
+Person.prototype.valueOf = function() {
+  return this.age
+}
+
+var g = new Node(10)
+var h = new Person(10)
+var i = new Person(5)
+
+assert( g &amp;gt;  i )
+refute( g &amp;gt;  h )
+&lt;/div&gt;
+
+&lt;p&gt;In Ruby you can control exactly what happens on comparison via the &lt;a href="http://ruby-doc.org/core-2.0/Comparable.html"&gt;&lt;code&gt;&amp;lt;=&amp;gt;&lt;/code&gt;&lt;/a&gt; method, which is passed the object to compare. This makes it easy to allow comparisons with some objects, but throw exceptions for invalid comparisons.&lt;/p&gt;
+
+&lt;h2 id="valueof-is-ready-to-make-your-code-better"&gt; &lt;code&gt;valueOf&lt;/code&gt; is ready to make your code better&lt;/h2&gt;
+
+&lt;p&gt;Now you know what &lt;code&gt;valueOf&lt;/code&gt; can and cannot do, you’ve got a shiny new tool to make your code even more beautiful!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-05-14:/post/offer-javascript-code-reads/</id>
+    <title type="html">Offer: Javascript code-reads</title>
+    <published>2013-05-14T00:00:00Z</published>
+    <updated>2013-05-14T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/offer-javascript-code-reads/"/>
+    <content type="html">&lt;p&gt;Writing easily understood, maintainable Javascript applications is hard. I want to see how different teams handle it as research for &lt;a href="https://www.sidekickjs.com"&gt;SidekickJS&lt;/a&gt;. So I’m offering you a free code-read: a complete read through of your app and delivery of a detailed report.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/timruffles/code-reads"&gt;Take a look&lt;/a&gt; at the code-reads I’ve done so far. &lt;/p&gt;
+
+&lt;p&gt;If you’d like a code-read &lt;a href="https://news.ycombinator.com/user?id=timruffles"&gt;get in touch&lt;/a&gt; - I’ll only have time to do a few, so be quick! The report can be private, and I’m happy to sign NDAs (gently remind your boss that client-side JS is &lt;em&gt;already&lt;/em&gt; public).&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:sidekicksrc.com,2013-05-07:/post/if-you-love-automation-why-is-your-development-environment-manual/</id>
+    <title type="html">If you love automation why is your development environment manual?</title>
+    <published>2013-05-07T00:00:00Z</published>
+    <updated>2013-05-07T00:00:00Z</updated>
+    <link rel="alternate" href="http://sidekicksrc.com/post/if-you-love-automation-why-is-your-development-environment-manual/"/>
+    <content type="html">&lt;p&gt;I guess two things about you: you believe automation is a good thing, but you don’t automate your development environment. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="/img/devprod.jpg" alt="Production vs development" /&gt;&lt;/p&gt;
+
+&lt;p&gt;Most teams I’ve been on run Linux. Development, however, is on OSX, and setup is a hideous mess of XCode, ports/brew, &amp;amp; random installer &lt;a href="http://c2.com/cgi/wiki?YakShaving"&gt;yak-shaving&lt;/a&gt;. And the final result barely resembles production.&lt;/p&gt;
+
+&lt;p&gt;Additionally most devs have hand-written their editor &amp;amp; command line config. If their laptop goes out of action they’ll take hours to get productive again.&lt;/p&gt;
+
+&lt;p&gt;The answer to both problems is the same - script it!&lt;/p&gt;
+
+&lt;p class="tldr"&gt;
+  TL;DR: Vagrant + Chef + Vim/Emacs + SSH-in to VM + tmux = only configure your editor/*nix env once, no dev/production pain, repeatable deploys, common env across team.
+&lt;/p&gt;
+
+&lt;h2 id="strategy"&gt;Strategy&lt;/h2&gt;
+
+&lt;p&gt;The idea is our editor, tools etc will all live on a virtual machine, in which we’ll also setup our application environment - databases, services etc. We can then develop features using the precise environment we have in production, reusing the production scripts.&lt;/p&gt;
+
+&lt;h2 id="pros--con"&gt;Pros &amp;amp; con&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;time from new laptop to development &amp;lt; 20 minutes - lowers productivity risk of OS/HDD meltdown or theft&lt;/li&gt;
+  &lt;li&gt;crush production/development difference, an evergreen source of bugs&lt;/li&gt;
+  &lt;li&gt;one environment across team&lt;/li&gt;
+  &lt;li&gt;reduces cost of configuring things right - you’ll do it once&lt;/li&gt;
+  &lt;li&gt;test clean deploys easily by create/destroying environment at will&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The sole con for me has been the up-front cost. If you like GUI editors or IDEs this technique could also be trickier.&lt;/p&gt;
+
+&lt;h2 id="tools"&gt;Tools&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Chef - defines and creates environment&lt;/li&gt;
+  &lt;li&gt;VirtualBox - runs a virtual machine to contain your environment&lt;/li&gt;
+  &lt;li&gt;Vagrant - script creation of virtual machines&lt;/li&gt;
+  &lt;li&gt;tmux or screen - keep a persistent development session&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id="chef"&gt;Chef&lt;/h2&gt;
+
+&lt;p&gt;Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it’s either familiar for you as a Rubyist, or a new language that’s easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployment or maintenance.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;template &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;/etc/nginx.conf&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;do&lt;/span&gt;
+  owner &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;nginx&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+  group &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;nginx&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+  source &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;nginx.conf.erb&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span style="color:#080;font-weight:bold"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;A complete Chef tutorial is out of scope, but it’s easy to learn and there are &lt;a href="http://docs.opscode.com/"&gt;great docs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;My strategy has been to split out the development environment into a separate recipe which is placed in the run list for my local environment. This takes care of:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;dotfiles - SSH, &lt;code&gt;.{input,bash}rc&lt;/code&gt; etc&lt;/li&gt;
+  &lt;li&gt;vim ($EDITOR), vim plugins&lt;/li&gt;
+  &lt;li&gt;tmux&lt;/li&gt;
+  &lt;li&gt;ack &amp;amp; other command line tools&lt;/li&gt;
+  &lt;li&gt;local instances of Postgres, redis etc&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Once the development recipe has been run I have my development repos cloned, my keys in place (kept out of version control, in secure online storage), my editor ready and configured. I can be writing, committing and deploying code immediately.&lt;/p&gt;
+
+&lt;p&gt;I also run 2 instances of the application - one over port 80 from the &lt;code&gt;/srv&lt;/code&gt; directory as in production, the other from &lt;code&gt;/home&lt;/code&gt;, over the same server, just changing ports. I edit and push code from the &lt;code&gt;/home&lt;/code&gt; directory. When I’m happy with a feature in &lt;code&gt;/home&lt;/code&gt; I reprovision the VM to run the deploy - and I know it’s ready to deploy cleanly in production!&lt;/p&gt;
+
+&lt;h2 id="virtualbox"&gt;VirtualBox&lt;/h2&gt;
+
+&lt;p&gt;Since we want to be able to quickly create and destroy development environments, it’s best not to manage your machine’s actual OS with Chef. That implies virtualisation.&lt;/p&gt;
+
+&lt;p&gt;VirtualBox is a free virtual machine runner. We’ll not actually be doing anything with it aside from &lt;a href="https://www.virtualbox.org/wiki/Downloads"&gt;downloading the installer&lt;/a&gt; and running it.&lt;/p&gt;
+
+&lt;h2 id="vagrant"&gt;Vagrant&lt;/h2&gt;
+
+&lt;p&gt;We script VirtualBox via Vagrant. It’s responsible for downloading, installing and configuring virtual-machines: port-forwarding, shared folders, and the specific OS you’d like to install. It hands off responsibility for configuration of that OS to a provisioner - in this case &lt;a href="http://docs.vagrantup.com/v2/provisioning/chef_solo.html"&gt;Chef solo&lt;/a&gt;, but alternatively &lt;a href="http://docs.vagrantup.com/v2/provisioning/shell.html"&gt;shell&lt;/a&gt; or &lt;a href="http://docs.vagrantup.com/v2/provisioning/puppet_apply.html"&gt;Puppet&lt;/a&gt;. &lt;/p&gt;
+
+&lt;p&gt;Getting Vagrant is &lt;a href="http://downloads.vagrantup.com/"&gt;really easy&lt;/a&gt; - again just download and run the installer. You’ll then create a &lt;a href="http://docs.vagrantup.com/v2/vagrantfile/index.html"&gt;Vagrant file&lt;/a&gt; which contains the configuration of your box (or boxes if you have a multi-server production environment). You &lt;a href="http://www.vagrantbox.es/"&gt;choose&lt;/a&gt; a base OS (‘box’ for Vagrant) and use the Vagrant command line tool to install. &lt;/p&gt;
+
+&lt;p&gt;You Vagrant file will contain configuration for the box, and for your provisioner, setting up the OS and your app’s environment respectively. Here’s a snippet from mine - you can see I’m forwarding ports so I can access services running on the box on my host browser.&lt;/p&gt;
+
+&lt;div&gt;&lt;div class="CodeRay"&gt;
+  &lt;div class="code"&gt;&lt;pre&gt;config.vm.host_name = &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;vagrant.vagrantup.com&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+
+config.vm.box_url = &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;https://github.com/downloads/leapcode/minimal-debian-vagrant/wheezy.box&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+
+config.vm.forward_port &lt;span style="color:#00D"&gt;80&lt;/span&gt;, &lt;span style="color:#00D"&gt;8080&lt;/span&gt; &lt;span style="color:#777"&gt;# chef managed rails from production recipe&lt;/span&gt;
+config.vm.forward_port &lt;span style="color:#00D"&gt;3000&lt;/span&gt;, &lt;span style="color:#00D"&gt;3030&lt;/span&gt; &lt;span style="color:#777"&gt;# dev rails in home&lt;/span&gt;
+
+config.vm.provision &lt;span style="color:#A60"&gt;:chef_solo&lt;/span&gt; &lt;span style="color:#080;font-weight:bold"&gt;do&lt;/span&gt; |chef|
+  
+  &lt;span style="color:#777"&gt;# ... boiler-plate&lt;/span&gt;
+
+  &lt;span style="color:#777"&gt;# install editors, dotfiles etc&lt;/span&gt;
+  chef.add_recipe &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;skjs::development&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+  &lt;span style="color:#777"&gt;# install production environment&lt;/span&gt;
+  chef.add_recipe &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;skjs&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;
+
+  &lt;span style="color:#777"&gt;# dev overrides&lt;/span&gt;
+  chef.json = {
+    env: &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;development&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,
+    unicorn_workers: &lt;span style="color:#00D"&gt;1&lt;/span&gt;,
+    app_domain: &lt;span style="background-color:hsla(0,100%,50%,0.05)"&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;span style="color:#D20"&gt;localhost&lt;/span&gt;&lt;span style="color:#710"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;,
+  }
+&lt;span style="color:#080;font-weight:bold"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id="tmux-or-screen"&gt;tmux or screen&lt;/h2&gt;
+
+&lt;p&gt;Since our development environment now lives inside our VM, we’ll need to SSH in. Recreating the editor/command line sessions every-time you develop is a waste of time. A terminal multiplexer allows you to create persistent development sessions running multiple commands in different panes.&lt;/p&gt;
+
+&lt;p&gt;I keep a &lt;a href="http://tmux.sourceforge.net/"&gt;tmux&lt;/a&gt; session alive for each repository, tailing logs, running test servers and my editor. By suspending the VM rather than shutting it down I can run the same tmux session for weeks.&lt;/p&gt;
+
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;I can’t see any reason not to do this for new projects - it solves multiple pain-points and if you’re already using Chef or Puppet it’s mostly work you’ll need to do anyway. It’s been great for me as a bootstrapper - it would be even more beneficial for larger teams.&lt;/p&gt;
+</content>
+  </entry>
+</feed>
+

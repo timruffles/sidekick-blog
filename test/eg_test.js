@@ -1,1 +1,0 @@
-/home/sidekick/blog-sidekick/content/js/eg_test.js

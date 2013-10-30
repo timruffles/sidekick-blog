@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>takeThis() - unite JS's APIs</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>takeThis() - unite JS's APIs</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p>I’d like to introduce the <code>takeThis()</code> function, which immediately reminds me of fights in old movies:</p>
+
+<p>“Oh really pal, well… TAKE THIS!! <em>WHAM</em>”</p>
+
+<p><code>takeThis()</code> usefully marries the two halves of JS’s schizophrenic object-oriented/functional character. Functions like <code>join()</code> and <code>split()</code> live as prototype methods, which take their main argument from their call-site: <code>this</code>. This makes using them with higher-order functions, like <code>map()</code>, a pain. The pain is obvious when even a simple job like splitting all the strings in a list require an extra function literal:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> strings = [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">a b c</span><span style="color:#710">&quot;</span></span>,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">d e f</span><span style="color:#710">&quot;</span></span>];
+<span style="color:#080;font-weight:bold">var</span> split = strings.map(<span style="color:#080;font-weight:bold">function</span>(s) {
+  <span style="color:#080;font-weight:bold">return</span> s.split(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> </span><span style="color:#710">&quot;</span></span>)
+});
+</pre></div>
+</div>
+</div>
+
+<p>It also precludes using the methods in pipelines created via functional composition - and anywhere of the other standard functional tricks.</p>
+
+<p><code>takeThis()</code> solves this by taking the arguments first, and returning a function that applies them when it receives the value of <code>this</code>:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>Function.prototype.<span style="color:#06B;font-weight:bold">takeThis</span> = <span style="color:#080;font-weight:bold">function</span>() {
+  <span style="color:#080;font-weight:bold">var</span> fn = <span style="color:#963">this</span>;
+  <span style="color:#080;font-weight:bold">var</span> args = <span style="color:#963">arguments</span>;
+  <span style="color:#080;font-weight:bold">return</span> <span style="color:#080;font-weight:bold">function</span>(thisVal) {
+    <span style="color:#080;font-weight:bold">return</span> fn.apply(thisVal,args)
+  }
+}
+</pre></div>
+</div>
+</div>
+
+<p>Here I’ve defined it on the <code>Function.prototype</code> as I live on the edge (only in programming, I’m in bed by 11). I’m not very worried about clashes - if you are, I’d recommend <a href="http://agavejs.org/">agave.js</a>.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> lists = [
+  [<span style="color:#00D">1</span>,<span style="color:#00D">2</span>,<span style="color:#00D">3</span>],
+  [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">a</span><span style="color:#710">&quot;</span></span>,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">b</span><span style="color:#710">&quot;</span></span>,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">c</span><span style="color:#710">&quot;</span></span>]
+];
+<span style="color:#080;font-weight:bold">var</span> lyrics = [
+  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">five to one baby</span><span style="color:#710">&quot;</span></span>,
+  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">scaring the nation with their</span><span style="color:#710">&quot;</span></span>
+];
+<span style="color:#080;font-weight:bold">var</span> needTrimming = [
+  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> i have lots of whitespace </span><span style="color:#710">&quot;</span></span>,
+  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> so do i      </span><span style="color:#710">&quot;</span></span>
+];
+
+lists.map([].join.takeThis(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">,</span><span style="color:#710">&quot;</span></span>));
+lyrics.map(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>.split.takeThis(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> </span><span style="color:#710">&quot;</span></span>));
+needTrimming.map(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>.trim.takeThis());
+</pre></div>
+</div>
+</div>
+
+<p>As you can see, we can now easily use the prototype methods like any other function!</p>
+
+<p><a href="http://jsbin.com/UhAgIJo/1/edit?js,console">See it in action</a>. I’ll be sharing more JS tools and tricks, <a href="http://twitter.com/sidekicksrc">follow me</a> to hear about them!</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/submitlink?u=http%3A%2F%2Fsidekicksrc.com%2Fpost%2Ftakethis-unite-javascripts-apis%2F&t=takeThis%28%29+-+unite+JS%27s+APIs'>Discuss</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

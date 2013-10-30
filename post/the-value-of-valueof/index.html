@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>The Value of valueOf</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>The Value of valueOf</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p><code>valueOf</code> is a radically underused part of Javascript. It gives you some control over comparison of your custom object types within your application. This allows you to keep your code short, readable and natural - especially if you use a lot of <a href="http://c2.com/cgi/wiki?ValueObject">value objects</a>.</p>
+
+<script>
+function fail() {
+  throw new Error("failed")
+}
+</script>
+
+<p>Any object which has a <code>valueOf</code> function available can play. <code>valueOf</code> is simple: it should return a primitive representation of the object’s value.</p>
+
+<div data-describe="Defining valueOf on custom type">
+  <div data-scoped="">
+function Node(weight) {
+  this.weight = weight
+}
+Node.prototype.valueOf = function() {
+  return this.weight
+}
+
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
+  </div>
+  <div data-it="allows simple comparison between instances of the type">
+assert( a &gt; b )
+assert( b &lt; a )
+assert( c &gt; a  &amp;&amp; c &gt; b )
+  </div>
+</div>
+
+<p>Javascript will use the <code>valueOf</code> method whenever an object is in a position it should be converted to a primitive - comparison operations or arithmetic where other primitives are concerned, or in inequalities between objects.</p>
+
+<div data-it="`valueOf` is used when object needs to be converted to a primitive">
+assert( new Node(0) == 0 )
+assert( new Node(0) == false )
+assert( new Node(5) + 10 === 15 )
+assert( new Node(5) + new Node(10) === 15 )
+</div>
+
+<p><code>valueOf</code> clearly affects the behaviour when explicitly comparing an object with a boolean - in contrast, it has no effect in implicit tests for truthiness. In <code>if</code> statements, the <code>!</code> unary operator, or anywhere else that <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-9.2">implicitly converts</a> to a boolean, objects are simply defined as true:</p>
+
+<div data-it="doesn't use `valueOf` when if statements implicity convert to boolean">
+assert( new Node(0)  )
+refute( !new Node(0) )
+
+var noChangeToObjectTruthiness
+if( new Node(0) ) noChangeToObjectTruthiness = true
+
+assert( noChangeToObjectTruthiness )
+</div>
+
+<h2 id="sorting">Sorting</h2>
+
+<p>Having a numeric value for our objects keeps sorting much cleaner, as we can simply use subtraction - just like sorting numbers. This makes, for instance, code for a priority queue of nodes in a search algorithm clean and expressive.</p>
+
+<div data-it="enables sorting as simple as with numbers">
+var a = new Node(15)
+var b = new Node(10)
+var c = new Node(25)
+
+assert.equal(
+  [a,c,b].sort(function(a,b) { return a - b }),
+  [b,a,c]
+)
+</div>
+
+<h2 id="limitations">Limitations</h2>
+
+<p>Javascript is an object-oriented, not a message-passing language (I’ll write about this another time), so comparison is a primitive operation. This means we cannot control either equality comparison, or comparison with a range of types.</p>
+
+<h2 id="equality">Equality</h2>
+
+<p>From the way inequality operators work with two objects having <code>valueOf</code> defined we’d assume that equality would be similar. Actually, objects are only equal under both the <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3"><code>==</code></a> and <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6"><code>===</code></a> operators when they are the same object. This leads to the following surprising code, where <code>e</code> is neither less, or more, than <code>f</code>, but isn’t equal to it.</p>
+
+<div data-it="doesn't effect equaliy">
+var e = new Node(5)
+var f = new Node(5)
+
+refute( e &gt; f )
+refute( e &lt; f )
+
+refute( e ==  f )
+refute( e === f )
+</div>
+
+<h2 id="comparison-with-different-types">Comparison with different types</h2>
+
+<p>Although we can control the value of our objects in comparison, we have no knowledge of the context: what we’re comparing the objects to. This means we can’t model comparisons with more than one type - unless you’re careful to return a value that is sensibly comparable to all the types you’d like to compare it with. This can lead to absurd comparisons:</p>
+
+<div data-it="doesn't give control over comparison with other types">
+function Person(age) {
+  this.age = age
+}
+Person.prototype.valueOf = function() {
+  return this.age
+}
+
+var g = new Node(10)
+var h = new Person(10)
+var i = new Person(5)
+
+assert( g &gt;  i )
+refute( g &gt;  h )
+</div>
+
+<p>In Ruby you can control exactly what happens on comparison via the <a href="http://ruby-doc.org/core-2.0/Comparable.html"><code>&lt;=&gt;</code></a> method, which is passed the object to compare. This makes it easy to allow comparisons with some objects, but throw exceptions for invalid comparisons.</p>
+
+<h2 id="valueof-is-ready-to-make-your-code-better"> <code>valueOf</code> is ready to make your code better</h2>
+
+<p>Now you know what <code>valueOf</code> can and cannot do, you’ve got a shiny new tool to make your code even more beautiful!</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/submitlink?u=http%3A%2F%2Fsidekicksrc.com%2Fpost%2Fthe-value-of-valueof%2F&t=The+Value+of+valueOf'>Discuss</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+    <script>
+      var prettifierLoad = (function() {
+        var cbs = []
+        var loaded = false
+        return {
+          q: function(cb) { 
+            loaded ? cb() : cbs.push(cb) 
+          },
+          loaded: function() {
+            loaded = true
+            cbs.forEach(function(cb) { cb() }) 
+          }
+        }
+      })()
+      head.js("/js/vendor/mocha.js","/js/blog_unit.js",function() {
+        Bu.prepareForReading()
+        prettifierLoad.q(function() {
+          Bu.setPrettifier(function(el) {
+            var fixTabs = true
+            hljs.highlightBlock(el,fixTabs)
+          })
+        })
+      })
+    </script>
+  
+  
+    <script>
+      head.load("/highlight/styles/github.css")
+      head.js("/highlight/highlight.js",function() {
+        prettifierLoad.loaded()
+      })
+    </script>
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

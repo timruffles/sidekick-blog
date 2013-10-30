@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Enforced privacy is rude: advise instead</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>Enforced privacy is rude: advise instead</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p class="info">My <a href="/post/closures-for-classmodule-privacy-considered-harmful">previous post</a> prompted a good debate on HN, but a few of my points got lost. So this post restates my argument that "privacy is good, some implementations are better than others".</p>
+
+<p>Privacy in OO is great for communication, but causes pain if it can’t be bypassed. Advisory privacy achieves communication while letting your users do what they like with your software.</p>
+
+<p>It’s rude not to let people using your code bypass privacy if they’re aware of the risks (it’s what NSA wants, right?). It’s a message that you consider them unworthy to be trusted with the internals of your code, and makes your code less fun &amp; productive to use.</p>
+
+<h2 id="privacy-is-communicationsecurity">Privacy is communication<a href="#security">*</a></h2>
+
+<p>Making something private says to your users “this is internal, and I will change it at will, do not rely on it”.</p>
+
+<p>This helps your users avoid being burned when you update the library. Equally you can change the internal implementation without affecting the public API.</p>
+
+<h2 id="advisory-privacy-has-benefits-enforced-privacy-has-harms">Advisory privacy has benefits; enforced privacy has harms</h2>
+
+<p>Whether an implementation of privacy is enforced or merely advisory is completely distinct from its merits for communicating danger of change. </p>
+
+<p>Software which uses enforced privacy is less fun &amp; productive because:</p>
+
+<ul>
+  <li>You can’t hack around in a REPL, experimenting with new implementations that require access to private variables</li>
+  <li>You can’t tactically monkey-patch. It’s a lot quicker than creating a fork, especially if you have back-port patches if your patch is not something that’s going to be merged</li>
+  <li>Changing private functions can be useful in testing</li>
+</ul>
+
+<p>Considering that dynamism is one of the features most Javascripters love, why use an idiom that is so anti-dynamic?</p>
+
+<h2 id="treat-your-users-like-adults">Treat your users like adults</h2>
+
+<p>Open-source software wants to help people. Making it impossible to change the internals of software for your users’ “own good” is insulting: communicate the danger, let the users decide.</p>
+
+<p>Application code is a different situation as you can change the source - use whatever privacy method you fancy<a href="#big-co">*</a> - but as I <a href="/post/closures-for-classmodule-privacy-considered-harmful">argued previously</a> closure based privacy is still ugly for OO components, and makes sub-typing a chore.</p>
+
+<h2 id="advisory-privacy-everywhere">Advisory privacy everywhere</h2>
+
+<p>Anybody who’s studied many OO languages knows that advisory privacy is common - the languages are mature and well designed, perhaps they’re on to something? Smalltalk <a href="http://stackoverflow.com/a/7399889/427710">doesn’t enforce privacy</a>. Python’s creator explicitly prefers privacy as an <a href="https://plus.google.com/115212051037621986145/posts/7wpbQTPRWft">“advisory mechanism, not an enforcement mechanism”</a> via the <code>_</code> convention. Ruby’s <code>send</code> method can <a href="http://rubyfiddle.com/riddles/84054/3">call any <code>private</code> method</a>.</p>
+
+<h2 id="happy-path-for-javascript-privacy">Happy path for Javascript privacy</h2>
+
+<p>In Javascript, I’d suggest implementing advisory privacy via the <code>_</code> prefix as it’s a well-known convention. To make it even clearer to users they’re doing a ‘naughty’ thing with your code you could prefix things with <code>-</code> so they have to use the longer brackets/string notation:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> MyModule = {
+<span style="color:#606"><span style="color:#404">&quot;</span><span>-doTheThing</span><span style="color:#404">&quot;</span></span>: <span style="color:#080;font-weight:bold">function</span>() {}
+}
+MyModule[<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">-doTheThing</span><span style="color:#710">&quot;</span></span>]() <span style="color:#777">// dodgy things should look dodgy</span>
+</pre></div>
+</div>
+</div>
+
+<p>I’ve written up a complete example of advisory <a href="/post/productive-advisory-privacy/">privacy in Javascript</a>.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Advisory privacy communicates danger to your users while treating them as adults. Don’t deny them the productivity and fun of hacking about with the internals. In Javascript that means avoiding closure-based privacy for modules and classes.</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/item?id=6126886'>Discuss (32)</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+    <div class=footnotes>
+      <h4>Footnotes</h4>
+      <ul><li id="security">Privacy for security is an entirely different, more complex problem, that applications running alongside untrusted code need consider.</li>
+<li id="big-co">If you work for a "big-co" where bosses won't understand it's not your fault if someone else uses a private method, go wild with enforced privacy.</li>
+</ul>
+    </div>
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

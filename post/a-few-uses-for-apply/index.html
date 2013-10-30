@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>A few uses for apply()</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>A few uses for apply()</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p><code>apply()</code> is most often used for building higher-order functions, but it has uses in normal, straight line coding with Javascript too.</p>
+
+<p>I very commonly use <code>apply()</code> to make a var-args function more useful. <code>Math.max</code> and <code>Math.min</code> are frequent targets. Let’s say we want to find the minimum age of our users:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> minAge = Math.min.apply(<span style="color:#069">null</span>,userAges)
+</pre></div>
+</div>
+</div>
+
+<p>We can generalise this to a <code>Math.arrayMin</code>, and <code>arrayMax</code>, rather than cofusing later readers of our code:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>Math.<span style="color:#06B;font-weight:bold">arrayMin</span> = <span style="color:#080;font-weight:bold">function</span>(array) {
+  <span style="color:#080;font-weight:bold">return</span> Math.min.apply(<span style="color:#069">null</span>,array)
+}
+</pre></div>
+</div>
+</div>
+
+<p>Another example might be joining a variable number of arrays together. If we have an array of arrays, we can:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> variableNumberOfArrays = [[<span style="color:#00D">1</span>,<span style="color:#00D">2</span>,<span style="color:#00D">3</span>],[<span style="color:#00D">4</span>,<span style="color:#00D">5</span>,<span style="color:#00D">6</span>]]
+[].concat.apply([],variableNumberOfArrays) <span style="color:#777">// [1,2,3,4,5,6]</span>
+</pre></div>
+</div>
+</div>
+
+<p>In case you’re wondering, this isn’t the same as flattening, we’re just performing a concatenation. So <code>[[[1],2,3],[4,5,6]]</code> would come out <code>[[1],2,3,4,5,6]</code>.</p>
+
+<p>Again it’s probably best to name an intention revealing function rather than scattering the slightly confusing idiom all over the place:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>Array.prototype.<span style="color:#06B;font-weight:bold">concatArrays</span> = <span style="color:#080;font-weight:bold">function</span>(arrays) {
+  <span style="color:#080;font-weight:bold">return</span> <span style="color:#963">this</span>.concat.apply(<span style="color:#963">this</span>,arrays)
+}
+</pre></div>
+</div>
+</div>
+
+<p>So if you’re faced with a function taking a variable number of arguments, and wished you could pass an array: you can. Another job for <code>Function.prototype.apply()</code>!</p>
+
+<p>I’ll be sharing more JS tools and tricks, <a href="http://twitter.com/sidekicksrc">follow me</a> to hear about them!</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/submitlink?u=http%3A%2F%2Fsidekicksrc.com%2Fpost%2Fa-few-uses-for-apply%2F&t=A+few+uses+for+apply%28%29'>Discuss</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

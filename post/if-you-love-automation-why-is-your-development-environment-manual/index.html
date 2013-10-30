@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>If you love automation why is your development environment manual?</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>If you love automation why is your development environment manual?</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p>I guess two things about you: you believe automation is a good thing, but you don’t automate your development environment. </p>
+
+<p><img src="/img/devprod.jpg" alt="Production vs development" /></p>
+
+<p>Most teams I’ve been on run Linux. Development, however, is on OSX, and setup is a hideous mess of XCode, ports/brew, &amp; random installer <a href="http://c2.com/cgi/wiki?YakShaving">yak-shaving</a>. And the final result barely resembles production.</p>
+
+<p>Additionally most devs have hand-written their editor &amp; command line config. If their laptop goes out of action they’ll take hours to get productive again.</p>
+
+<p>The answer to both problems is the same - script it!</p>
+
+<p class="tldr">
+  TL;DR: Vagrant + Chef + Vim/Emacs + SSH-in to VM + tmux = only configure your editor/*nix env once, no dev/production pain, repeatable deploys, common env across team.
+</p>
+
+<h2 id="strategy">Strategy</h2>
+
+<p>The idea is our editor, tools etc will all live on a virtual machine, in which we’ll also setup our application environment - databases, services etc. We can then develop features using the precise environment we have in production, reusing the production scripts.</p>
+
+<h2 id="pros--con">Pros &amp; con</h2>
+
+<ul>
+  <li>time from new laptop to development &lt; 20 minutes - lowers productivity risk of OS/HDD meltdown or theft</li>
+  <li>crush production/development difference, an evergreen source of bugs</li>
+  <li>one environment across team</li>
+  <li>reduces cost of configuring things right - you’ll do it once</li>
+  <li>test clean deploys easily by create/destroying environment at will</li>
+</ul>
+
+<p>The sole con for me has been the up-front cost. If you like GUI editors or IDEs this technique could also be trickier.</p>
+
+<h2 id="tools">Tools</h2>
+
+<ul>
+  <li>Chef - defines and creates environment</li>
+  <li>VirtualBox - runs a virtual machine to contain your environment</li>
+  <li>Vagrant - script creation of virtual machines</li>
+  <li>tmux or screen - keep a persistent development session</li>
+</ul>
+
+<h2 id="chef">Chef</h2>
+
+<p>Chef allows you to define your server configuration in code. It uses a Ruby-based DSL, so it’s either familiar for you as a Rubyist, or a new language that’s easy and useful to learn. When Chef runs it ensures a server is in a specified state; the first run will be installation, later runs for deployment or maintenance.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>template <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/etc/nginx.conf</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  owner <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">nginx</span><span style="color:#710">&quot;</span></span>
+  group <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">nginx</span><span style="color:#710">&quot;</span></span>
+  source <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">nginx.conf.erb</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre></div>
+</div>
+</div>
+
+<p>A complete Chef tutorial is out of scope, but it’s easy to learn and there are <a href="http://docs.opscode.com/">great docs</a>.</p>
+
+<p>My strategy has been to split out the development environment into a separate recipe which is placed in the run list for my local environment. This takes care of:</p>
+
+<ul>
+  <li>dotfiles - SSH, <code>.{input,bash}rc</code> etc</li>
+  <li>vim ($EDITOR), vim plugins</li>
+  <li>tmux</li>
+  <li>ack &amp; other command line tools</li>
+  <li>local instances of Postgres, redis etc</li>
+</ul>
+
+<p>Once the development recipe has been run I have my development repos cloned, my keys in place (kept out of version control, in secure online storage), my editor ready and configured. I can be writing, committing and deploying code immediately.</p>
+
+<p>I also run 2 instances of the application - one over port 80 from the <code>/srv</code> directory as in production, the other from <code>/home</code>, over the same server, just changing ports. I edit and push code from the <code>/home</code> directory. When I’m happy with a feature in <code>/home</code> I reprovision the VM to run the deploy - and I know it’s ready to deploy cleanly in production!</p>
+
+<h2 id="virtualbox">VirtualBox</h2>
+
+<p>Since we want to be able to quickly create and destroy development environments, it’s best not to manage your machine’s actual OS with Chef. That implies virtualisation.</p>
+
+<p>VirtualBox is a free virtual machine runner. We’ll not actually be doing anything with it aside from <a href="https://www.virtualbox.org/wiki/Downloads">downloading the installer</a> and running it.</p>
+
+<h2 id="vagrant">Vagrant</h2>
+
+<p>We script VirtualBox via Vagrant. It’s responsible for downloading, installing and configuring virtual-machines: port-forwarding, shared folders, and the specific OS you’d like to install. It hands off responsibility for configuration of that OS to a provisioner - in this case <a href="http://docs.vagrantup.com/v2/provisioning/chef_solo.html">Chef solo</a>, but alternatively <a href="http://docs.vagrantup.com/v2/provisioning/shell.html">shell</a> or <a href="http://docs.vagrantup.com/v2/provisioning/puppet_apply.html">Puppet</a>. </p>
+
+<p>Getting Vagrant is <a href="http://downloads.vagrantup.com/">really easy</a> - again just download and run the installer. You’ll then create a <a href="http://docs.vagrantup.com/v2/vagrantfile/index.html">Vagrant file</a> which contains the configuration of your box (or boxes if you have a multi-server production environment). You <a href="http://www.vagrantbox.es/">choose</a> a base OS (‘box’ for Vagrant) and use the Vagrant command line tool to install. </p>
+
+<p>You Vagrant file will contain configuration for the box, and for your provisioner, setting up the OS and your app’s environment respectively. Here’s a snippet from mine - you can see I’m forwarding ports so I can access services running on the box on my host browser.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>config.vm.host_name = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">vagrant.vagrantup.com</span><span style="color:#710">&quot;</span></span>
+
+config.vm.box_url = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://github.com/downloads/leapcode/minimal-debian-vagrant/wheezy.box</span><span style="color:#710">&quot;</span></span>
+
+config.vm.forward_port <span style="color:#00D">80</span>, <span style="color:#00D">8080</span> <span style="color:#777"># chef managed rails from production recipe</span>
+config.vm.forward_port <span style="color:#00D">3000</span>, <span style="color:#00D">3030</span> <span style="color:#777"># dev rails in home</span>
+
+config.vm.provision <span style="color:#A60">:chef_solo</span> <span style="color:#080;font-weight:bold">do</span> |chef|
+  
+  <span style="color:#777"># ... boiler-plate</span>
+
+  <span style="color:#777"># install editors, dotfiles etc</span>
+  chef.add_recipe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">skjs::development</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#777"># install production environment</span>
+  chef.add_recipe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">skjs</span><span style="color:#710">&quot;</span></span>
+
+  <span style="color:#777"># dev overrides</span>
+  chef.json = {
+    env: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">development</span><span style="color:#710">&quot;</span></span>,
+    unicorn_workers: <span style="color:#00D">1</span>,
+    app_domain: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">localhost</span><span style="color:#710">&quot;</span></span>,
+  }
+<span style="color:#080;font-weight:bold">end</span>
+</pre></div>
+</div>
+</div>
+
+<h2 id="tmux-or-screen">tmux or screen</h2>
+
+<p>Since our development environment now lives inside our VM, we’ll need to SSH in. Recreating the editor/command line sessions every-time you develop is a waste of time. A terminal multiplexer allows you to create persistent development sessions running multiple commands in different panes.</p>
+
+<p>I keep a <a href="http://tmux.sourceforge.net/">tmux</a> session alive for each repository, tailing logs, running test servers and my editor. By suspending the VM rather than shutting it down I can run the same tmux session for weeks.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>I can’t see any reason not to do this for new projects - it solves multiple pain-points and if you’re already using Chef or Puppet it’s mostly work you’ll need to do anyway. It’s been great for me as a bootstrapper - it would be even more beneficial for larger teams.</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/item?id=5673544'>Discuss (130)</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

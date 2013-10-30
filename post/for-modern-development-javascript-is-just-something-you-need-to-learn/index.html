@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>For modern development, Javascript is just something you need to learn</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>For modern development, Javascript is just something you need to learn</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p>Javascript is a small language. You know its <a href="http://en.wikipedia.org/wiki/JavaScript#History">history</a>. The intrinsic smallness of the language can be alarming when you come from a bigger language (Ruby, Java) and you need to learn idioms to do what the bigger language does for you.</p>
+
+<p>This article was prompted by a lovely, completely hyperbolae free article about this today titled <a href="http://live.julik.nl/2013/05/javascript-is-shit">‘For modern development Javascript indeed is a shit language’</a>.</p>
+
+<p>There are three things the author of the piece doesn’t seem to know much about:</p>
+
+<ol>
+  <li>how to write JS, as opposed to Ruby</li>
+  <li>the current version(s) of JS: ES5, and ES3 in old IEs</li>
+  <li>the next version of JS: ES6</li>
+</ol>
+
+<p>To use any new language effectively you need to learn about it and read a bit of code written by people who know it. It often seems that it’s terribly deficient compared to your language: most of the time though you just don’t know enough about it yet.</p>
+
+<h2 id="js-has-callable-attributes">JS has callable attributes</h2>
+
+<blockquote>
+  <p>if you are not used to message-passing language the whole idea of “some attributes are callable and some are not” seems absolutely legal.</p>
+</blockquote>
+
+<p>Message passing separates implementation from execution cleanly. Rather than an object having ‘properties’, I send a message to an object which invokes a method.  Everything then - property lookups, function calls - go via messages that can be handled differently at run time. I’ll call this ‘run time indirection’.</p>
+
+<p>In Javascript, our objects are just a bag of properties. I can take out a property and try to call it - if it’s a function it’ll work.</p>
+
+<p>Rather than throwing up our hands and wailing, perhaps it’s worth investigating how Javascripters a) achieve run-time indirection b) do the things run-time indirection is used for differently?</p>
+
+<h3 id="pre-es5-current-defensive-practice">Pre-ES5: current defensive practice</h3>
+
+<p>So in Ruby we have run-time indirection, in Javascript we have ‘define time’. Our objects are just as dynamic - we don’t have types - but our redefinition of methods must come before the call: we can only put properties in, not intercept property access.</p>
+
+<h4 id="dynamic-getters">Dynamic getters</h4>
+
+<p><code>ActiveRecord</code> objects in Rails are a good example: Ruby’s message intercept allows us to interpret property read/write dynamically, reflecting on database columns. In <a href="http://backbonejs.org/#Model-set">Backbone</a> (and <a href="http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read">Dojo</a> before it), we do that via defining <code>set()</code> and <code>get()</code> methods that similarly let us control property access at run-time.</p>
+
+<h4 id="mixins">Mixins</h4>
+
+<p>Ruby’s <code>send</code> will work with the ancestors of an object to track down the receiver. In JS, we just do our mixins earlier, via <a href="http://underscorejs.org/#extend"><code>_.extend</code></a> or similar. If we want to wrap existing methods, that’s <a href="http://underscorejs.org/#wrap">easy too</a>: we grab the current value, and make sure it’s called in our new version.</p>
+
+<h3 id="es5">ES5</h3>
+
+<p>In the current version of JS we do have a hook for intercepting known property lookup via <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"><code>Object.defineProperty</code></a>.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> obj = {}
+Object.defineProperty(obj,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>,{
+  <span style="color:#06B;font-weight:bold">get</span>: <span style="color:#080;font-weight:bold">function</span>() {
+    <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Proteus</span><span style="color:#710">&quot;</span></span> + Date.now()
+  }
+})
+obj.name <span style="color:#777">// &quot;Proteus1383048827952&quot;</span>
+obj.name <span style="color:#777">// &quot;Proteus1383048829030&quot;</span>
+</pre></div>
+</div>
+</div>
+
+<h3 id="es6">ES6</h3>
+
+<p>Proxies will allow <a href="http://wiki.ecmascript.org/doku.php?id=harmony:proxies">run-time indirection</a>; unsurprisingly, as it’s their stated goal.</p>
+
+<h2 id="objects-are-unusable-for-stable-keys">Objects are unusable for stable keys</h2>
+
+<blockquote>
+  <p>[JS] defies the premise that objects can have metadata on them </p>
+</blockquote>
+
+<p>Objects in Javascript aren’t useable as property keys by default - they’re converted into a string via their <code>toString()</code> method when used as a property. Since we know that, it’s trivial to make their <code>toString()</code> method return an id or hash code.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> store = {}
+<span style="color:#080;font-weight:bold">var</span> bobsStuff = {<span style="color:#606">stuff</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">yes</span><span style="color:#710">&quot;</span></span>}
+<span style="color:#080;font-weight:bold">var</span> bob = {<span style="color:#606">id</span>:<span style="color:#00D">1</span>,<span style="color:#606">name</span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bob</span><span style="color:#710">&quot;</span></span>}
+store[bob] = bobsStuff
+Object.keys(store) <span style="color:#777">// [&quot;[object Object]&quot;] - not very useful, not unique</span>
+
+bob.<span style="color:#06B;font-weight:bold">toString</span> = <span style="color:#080;font-weight:bold">function</span>() { <span style="color:#080;font-weight:bold">return</span> <span style="color:#963">this</span>.id }
+store[bob] = bobsStuff
+Object.keys(store) <span style="color:#777">// [&quot;[object Object]&quot;,&quot;1&quot;] - great, our key system worked</span>
+
+store[bob] <span style="color:#777">// {stuff: &quot;yes&quot; }</span>
+</pre></div>
+</div>
+</div>
+
+<p>More likely though, you’d define an <code>id</code> property and a custom container. This is the approach <a href="http://backbonejs.org/#Model-id"><code>Backbone</code></a> and <a href="http://dojotoolkit.org/reference-guide/1.9/dojo/data/api/Read.html#dojo-data-api-read"><code>dojo.data</code></a> etc have taken: for years in Dojo’s case…</p>
+
+<h3 id="es6-1">ES6</h3>
+
+<p>In ES6 we have the <a href="http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets"><code>Map</code></a>, which gives us the ability to map objects to values by object identity.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">var</span> m = <span style="color:#080;font-weight:bold">new</span> Map
+<span style="color:#080;font-weight:bold">var</span> a = {}
+<span style="color:#080;font-weight:bold">var</span> b = {}
+
+m.set(a,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">a</span><span style="color:#710">&quot;</span></span>)
+m.set(b,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">b</span><span style="color:#710">&quot;</span></span>)
+
+m.get(a) <span style="color:#777">// &quot;a&quot;</span>
+m.get(b) <span style="color:#777">// &quot;b&quot;</span>
+</pre></div>
+</div>
+</div>
+
+<p>Additionally it’s a standard API for new Mappy types, so we’ll see lots of custom maps being defined you can use.</p>
+
+<h2 id="objects-are-unusable-for-type-systems-since-an-object-does-not-carry-any-type-information">Objects are unusable for type systems since an object does not carry any type information.</h2>
+
+<p>The built-in option to check an object’s ‘type’ is <code>instanceof</code>, which looks at the function an object was created with. You’ll probably want to use your own keys though, as if you wrap the <code>ConstructorFunction</code> below to sub-class etc it won’t work.</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>a <span style="color:#080;font-weight:bold">instanceof</span> ConstructorFunction
+</pre></div>
+</div>
+</div>
+
+<p>If your app actually needs introspection, it’s really very easy: just add your own keys to your types. </p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">TypeA</span>() {
+}
+TypeA.prototype.type = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TypeA</span><span style="color:#710">&quot;</span></span>
+
+
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">somethingThatUsesType</span>(a) {
+  <span style="color:#080;font-weight:bold">switch</span>(a.type) {
+  }
+}
+</pre></div>
+</div>
+</div>
+
+<p>I don’t see this kind of code very often, because, for the same reason as Ruby, type sniffing is normally just for debugging. If you’re using it for something in your code it’s better to stick with duck-typing as it’s under your control, not the language’s, and it’s easier to extend and test.</p>
+
+<h2 id="null-everywhere">Null everywhere</h2>
+
+<p>Attempting to access a property of a JS object that’s not defined gives you… <code>undefined</code>. If it’s important to your program that you know about this: write some code.</p>
+
+<p>For the last few years I’ve used a <code>constants</code> module. It’s a function that takes an object, and returns a <code>constant</code> function you can lookup constants on:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">constants</span>(h) {
+  <span style="color:#080;font-weight:bold">return</span> <span style="color:#080;font-weight:bold">function</span>(k) {
+    <span style="color:#080;font-weight:bold">if</span>(h[k] == <span style="color:#069">null</span>) <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> Error(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Undefined constant: </span><span style="color:#710">&quot;</span></span> + k);
+    <span style="color:#080;font-weight:bold">return</span> h[k]
+  }
+}
+<span style="color:#080;font-weight:bold">var</span> myConstants = constants({<span style="color:#606">A</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hello</span><span style="color:#710">&quot;</span></span>})
+myConstants(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">A</span><span style="color:#710">&quot;</span></span>) <span style="color:#777">// hello</span>
+myConstants(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">B</span><span style="color:#710">&quot;</span></span>) <span style="color:#777">// Error!</span>
+</pre></div>
+</div>
+</div>
+
+<p>If you’re annoyed by how, when using objects as hashes, you get undefined on a missing key, it’s probably time to define a custom container!</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">MyMap</span>() {
+}
+MyMap.prototype.<span style="color:#06B;font-weight:bold">get</span> = <span style="color:#080;font-weight:bold">function</span>(k) {
+  <span style="color:#080;font-weight:bold">if</span>(!<span style="color:#963">this</span>[k]) <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> Error(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Missing key: </span><span style="color:#710">&quot;</span></span> + k)
+  <span style="color:#777">// ...</span>
+}
+</pre></div>
+</div>
+</div>
+
+<h3 id="es6-2">ES6</h3>
+
+<p>In ES6, and Node, you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const"><code>const</code></a> keyword. Woohoo.</p>
+
+<h2 id="callback-hell">Callback hell</h2>
+
+<p>‘Callback hell’ isn’t a problem for people who’ve written a lot of JS. They define functions with names, rather than heaps of anonymous functions, and use these to de-inline them and expose them to their unit tests. They use <code>bind()</code>. The may use helper libraries, or tools like <a href="http://nodejs.org/api/stream.html">streams</a> or <a href="http://wiki.commonjs.org/wiki/Promises/A">promises</a>. In the browser it really is trivial in most cases - in Node, you have more async so more opportunity to get into a mess. But it doesn’t need to be hell: <a href="http://www.youtube.com/watch?v=n34S_uFtGnw">I’ve spoken</a> about this, as have a lot of other people.</p>
+
+<h3 id="es6-3">ES6</h3>
+
+<p>ES6 is bringing [generators] which very much change the game. This has been <a href="http://jlongster.com/A-Study-on-Solving-Callbacks-with-JavaScript-Generators">written</a> and <a href="http://www.youtube.com/watch?v=qbKWsbJ76-s">spoken</a> about a lot.</p>
+
+<h2 id="terrible-exception-handling">Terrible exception handling</h2>
+
+<p>JS has one of the best debuggers out there: the Webkit inspector. It’s <a href="https://github.com/node-inspector/node-inspector">usable with Node.js too</a>.</p>
+
+<p>If you attempt to call a property that’s not a function: you get a line-number in the error. Go to that line, and pop in a breakpoint. Debug it!</p>
+
+<h2 id="write-into-a-language">Write into a language</h2>
+
+<p>If you’re frustrated with how JS (or another language) works compared to your pet language, it’s worth realising two things:</p>
+
+<ul>
+  <li>your language features a solution to a problem, perhaps such problems are solved a different way here?</li>
+  <li>you can reimplement your language’s features with a bit of code</li>
+</ul>
+
+<p>I find the similiarties between dynamic languages outweigh their differences, and it’s very unlikely you could find a feature in one you couldn’t rebuild trivially in another. More restrictive languages like Java or Haskell have sharper edges when they’re not working as you’d like: dynamic languages you can simply remould.</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/submitlink?u=http%3A%2F%2Fsidekicksrc.com%2Fpost%2Ffor-modern-development-javascript-is-just-something-you-need-to-learn%2F&t=For+modern+development%2C+Javascript+is+just+something+you+need+to+learn'>Discuss</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+

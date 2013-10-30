@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7 ]> <html class="ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+  
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Write punchy code - ditch the commentary</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel=stylesheet href=http://sidekicksrc.com/css/style.css />
+  <script src="/js/head.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40226431-2', 'sidekicksrc.com');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+<body class="blog post">
+
+  <div class=header>
+  <h2>
+    <a href="http://www.sidekickjs.com">SidekickJS's</a>
+<a href="http://sidekicksrc.com/">blog</a>
+
+  </h2>
+</div>
+
+
+  <h1><span class=content>Write punchy code - ditch the commentary</span></h1>
+  <div class=article>
+
+    <div class=content>
+      <p>Commenting on what you’re doing in code is bad for the same reason adjective-heavy prose is bad writing. It’s clearer and punchier to communicate with action, not description.</p>
+
+<p>Great writers like Hemingway seldom use descriptive verbs for ‘said’ - eg ‘whined’. They communicate through the action - what’s actually said - rather than a commentary on it. Equally in coding you can use the language of your code to reveal intention.</p>
+
+<h2 id="replace-comments-with-functions">Replace comments with functions</h2>
+
+<p>The best way of replacing comments is to name a function that states your intent. For instance the following code has a long comment:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span style="color:#777">/*
+* Throw error if callback is not a function 
+*/</span>
+<span style="color:#080;font-weight:bold">if</span>(_.isFunction(callback) ? callback : <span style="color:#963">this</span>[callback])) {
+  <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> Error(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Unable to find callback</span><span style="color:#710">&quot;</span></span>);
+}
+</pre></div>
+</div>
+</div>
+
+<p>which can be replace with an assertion function, without losing clarity:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>callback = _.isFunction(callback) ? callback : <span style="color:#963">this</span>[callback];
+assertFunction(callback,<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Unable to find callback</span><span style="color:#710">&quot;</span></span>);
+</pre></div>
+</div>
+</div>
+
+<h2 id="stale-comments">Stale comments</h2>
+
+<p>Comments are easy to ignore and can go out of date - code can’t, or it will cause errors (and you have tests, right?).</p>
+
+<h2 id="names-persist">Names persist</h2>
+
+<p>Function and variable names are, obviously, present wherever they are used the code. In contrast a comment about a name is only present where it’s defined. If you have something to communicate about a name, it’s better to have that information wherever it’s read rather than in a single place in the source where it’s easily missed.</p>
+
+<h2 id="where-to-comment">Where to comment?</h2>
+
+<p>Comments are worth using somtimes: for instance when they explain a surprising aspect of the code, link to external-documentation, or record future work required (TODO and FIXME). They should be used to explain the surprising or the non-obivous, if there’s no way your naming could do that instead.</p>
+
+<h2 id="lets-write-snappy-code">Let’s write snappy code</h2>
+
+<p>Keep your code snappy like Hemingway prose. Ditch description, and communciate action with the right word (name) instead!</p>
+
+    </div>
+
+    <div class=footer>
+  <a id=cta_footer class=sk-link href="https://www.sidekickjs.com">Write Javascript? Be proud of your team's code with SidekickJS</a>
+  <script>
+    var messages = [
+      "Write Javascript? Keep it beautiful with SidekickJS",
+      "Be proud of your team's code with our tool - SidekickJS",
+      "We make a code quality tool for Javascript - try it out!",
+      "Be proud of your team's code with our JS code-quality tool",
+      "Boss doesn't let you refactor? Try our tool, SidekickJS",
+      "Forever saying the same thing in code-review? Try SidekickJS!"
+    ];
+    var message = messages[Math.random() * messages.length | 0];
+    document.getElementById("cta_footer").innerText = message;
+    ga("_setCustomVar",1,"copy",message,1);
+  </script>
+  
+  <div class=links>
+    <a class=hn href='https://news.ycombinator.com/submitlink?u=http%3A%2F%2Fsidekicksrc.com%2Fpost%2Fwrite-punchy-code-ditch-the-commentary%2F&t=Write+punchy+code+-+ditch+the+commentary'>Discuss</a>
+    <a class=rss href='/rss' alt="Feed of posts">Feed</a>
+    <a class=twitter href='https://www.twitter.com/sidekicksrc' alt="Follow us">@sidekicksrc</a>
+  </div>
+  
+  
+  
+  
+  <script>
+    var idicatorClass = "highlit_by_url";
+    var highlightViewed = function() {
+      var current = document.querySelector("." + idicatorClass);
+      if(current) current.classList.remove(idicatorClass);
+      var id = window.location.hash;
+      if(!id) return;
+      id = id.slice(1);
+      var el = document.getElementById(id);
+      if(el) el.classList.add(idicatorClass)
+    };
+    highlightViewed();
+    window.addEventListener("hashchange",highlightViewed);
+  </script>
+</div>
+
+
+  </div>
+</body>
+</html>
+
